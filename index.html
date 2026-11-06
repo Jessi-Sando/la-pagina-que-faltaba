@@ -7,7 +7,8 @@
   <meta name="description" content="Historieta digital interactiva y material educativo transmedia. Expansión del proyecto La revolución huarpe olvidada (Mendoza).">
   <meta name="theme-color" content="#2a1c12">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M8 6 L50 4 L56 30 L52 58 L10 60 L14 32 Z' fill='%23efe3c8' stroke='%232a1c12' stroke-width='4'/%3E%3Cpath d='M18 20h26M18 30h22M18 40h24' stroke='%23b5543a' stroke-width='4'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="css/estilos.css?v=3">
+  <link rel="stylesheet" href="fuentes/fuentes.css">
+  <link rel="stylesheet" href="css/estilos.css?v=6">
 </head>
 <body>
   <a class="saltar" href="#principal">Saltar al contenido</a>
@@ -17,29 +18,44 @@
 
   <header class="barra" role="banner">
     <a class="marca" href="#inicio" aria-label="La página que faltaba: ir a la portada">
-      <span class="marca-titulo">La página que faltaba</span>
-      <span class="marca-sub">Memorias de una historia olvidada</span>
+      <svg class="marca-montes" viewBox="0 0 70 30" aria-hidden="true" focusable="false"><path d="M2 28 L17 10 L23 17 L36 3 L50 19 L57 13 L68 28" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><path d="M31 9 L36 3 L41 9 L36 7.5 Z M13.5 14 L17 10 L20.5 14 L17 12.8 Z" fill="currentColor"/></svg>
+      <span class="marca-sigla">LPQF</span>
     </a>
-    <button class="menu-boton" id="menu-boton" aria-expanded="false" aria-controls="menu">Menú</button>
-    <nav id="menu" class="menu" aria-label="Capítulos y secciones">
-      <ol class="menu-capitulos">
-        <li><a href="#cap1" data-ruta="cap1"><span class="num">1</span> El hallazgo</a></li>
-        <li><a href="#cap2" data-ruta="cap2"><span class="num">2</span> Las voces</a></li>
-        <li><a href="#cap3" data-ruta="cap3"><span class="num">3</span> Archivo de pistas</a></li>
-        <li><a href="#cap4" data-ruta="cap4"><span class="num">4</span> La viñeta que falta</a></li>
-        <li><a href="#cap5" data-ruta="cap5"><span class="num">5</span> Decisiones</a></li>
-        <li><a href="#cierre" data-ruta="cierre"><span class="num">✓</span> Cierre</a></li>
-      </ol>
-      <ul class="menu-extra">
-        <li><a href="#como" data-ruta="como">Cómo participar</a></li>
-        <li><a href="#fuentes" data-ruta="fuentes">Fuentes y ficción</a></li>
-        <li><a href="#universo" data-ruta="universo">Universo transmedia</a></li>
-        <li><a href="#docente" data-ruta="docente">Docentes</a></li>
+    <span class="barra-separador" aria-hidden="true"></span>
+    <button class="menu-boton" id="menu-boton" aria-expanded="false" aria-controls="menu"><span aria-hidden="true">☰</span> Menú</button>
+    <nav id="menu" class="menu" aria-label="Navegación principal">
+      <ul class="menu-principal">
+        <li class="desplegable">
+          <button class="menu-enlace" id="boton-historia" aria-expanded="false" aria-controls="sub-historia">Historia <span class="flecha" aria-hidden="true">▾</span></button>
+          <ol class="submenu" id="sub-historia">
+            <li><a href="#inicio" data-ruta="inicio"><span class="num">·</span> Portada</a></li>
+            <li><a href="#cap1" data-ruta="cap1"><span class="num">01</span> El hallazgo</a></li>
+            <li><a href="#cap2" data-ruta="cap2"><span class="num">02</span> Las voces</a></li>
+            <li><a href="#cap3" data-ruta="cap3"><span class="num">03</span> Archivo de pistas</a></li>
+            <li><a href="#cap4" data-ruta="cap4"><span class="num">04</span> La viñeta que falta</a></li>
+            <li><a href="#cap5" data-ruta="cap5"><span class="num">05</span> Decisiones</a></li>
+            <li><a href="#cierre" data-ruta="cierre"><span class="num">✓</span> Cierre y resumen</a></li>
+          </ol>
+        </li>
+        <li><a class="menu-enlace" href="#cap3" data-ruta="cap3">Archivo</a></li>
+        <li><a class="menu-enlace" href="#universo" data-ruta="universo">Universo</a></li>
+        <li><a class="menu-enlace" href="#docente" data-ruta="docente">Docentes</a></li>
+        <li class="solo-movil"><a class="menu-enlace" href="#como" data-ruta="como">Cómo participar</a></li>
+        <li class="solo-movil"><a class="menu-enlace" href="#fuentes" data-ruta="fuentes">Fuentes y ficción</a></li>
       </ul>
     </nav>
+    <span class="barra-separador" aria-hidden="true"></span>
     <a class="contador-pistas" href="#cap3" id="contador-pistas" aria-label="Bitácora de pistas">
-      <span aria-hidden="true">🔍</span> <span id="contador-num">0</span>/<span id="contador-total">14</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="14" cy="9.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.2 14.2 L2.5 21" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+      <span><span id="contador-num">0</span>/<span id="contador-total">14</span> pistas</span>
     </a>
+    <div class="desplegable desplegable-info">
+      <button class="info-boton" id="boton-info" aria-expanded="false" aria-controls="sub-info" aria-label="Información: cómo participar y fuentes">i</button>
+      <ul class="submenu submenu-derecha" id="sub-info">
+        <li><a href="#como" data-ruta="como">Cómo participar</a></li>
+        <li><a href="#fuentes" data-ruta="fuentes">Fuentes y ficción</a></li>
+      </ul>
+    </div>
   </header>
 
   <main id="principal" tabindex="-1"></main>
@@ -61,8 +77,8 @@
 
   <div id="impresion" aria-hidden="true"></div>
 
-  <script src="js/datos.js?v=3"></script>
-  <script src="js/arte.js?v=3"></script>
-  <script src="js/app.js?v=3"></script>
+  <script src="js/datos.js?v=6"></script>
+  <script src="js/arte.js?v=6"></script>
+  <script src="js/app.js?v=6"></script>
 </body>
 </html>

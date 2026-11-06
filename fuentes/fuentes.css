@@ -1,0 +1,7 @@
+/* Tipografías libres (SIL Open Font License), alojadas localmente para uso sin conexión.
+   Cinzel (títulos) · Alegreya y Alegreya SC (texto y rótulos). */
+@font-face { font-family: 'Cinzel'; font-style: normal; font-weight: 400 900; font-display: swap; src: url(cinzel.woff2) format('woff2'); }
+@font-face { font-family: 'Alegreya'; font-style: normal; font-weight: 400 900; font-display: swap; src: url(alegreya.woff2) format('woff2'); }
+@font-face { font-family: 'Alegreya'; font-style: italic; font-weight: 400 900; font-display: swap; src: url(alegreya-italica.woff2) format('woff2'); }
+@font-face { font-family: 'Alegreya SC'; font-style: normal; font-weight: 500; font-display: swap; src: url(alegreya-sc-500.woff2) format('woff2'); }
+@font-face { font-family: 'Alegreya SC'; font-style: normal; font-weight: 700; font-display: swap; src: url(alegreya-sc-700.woff2) format('woff2'); }

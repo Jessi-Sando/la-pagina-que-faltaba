@@ -131,16 +131,43 @@
     $('#contador-pistas').setAttribute('aria-label', `Bitácora: ${pistasHalladas().length} de ${TOTAL_PISTAS} pistas encontradas. Ir al archivo.`);
     const p = progreso();
     const actual = ruta || (location.hash.slice(1).split('/')[0] || 'inicio');
-    $$('#menu a').forEach(a => {
+    $$('.barra a[data-ruta]').forEach(a => {
       const r = a.dataset.ruta;
       if (r === actual) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
       if (p[r] !== undefined) { a.classList.toggle('hecho', p[r]); a.title = p[r] ? 'Completado' : ''; }
     });
+    $('#boton-historia').classList.toggle('activo', ['inicio', 'cap1', 'cap2', 'cap4', 'cap5', 'cierre'].indexOf(actual) > -1);
   }
   $('#menu-boton').addEventListener('click', () => {
     const m = $('#menu'), ab = m.classList.toggle('abierto');
     $('#menu-boton').setAttribute('aria-expanded', ab ? 'true' : 'false');
   });
+  /* Menús desplegables (Historia e Información) */
+  function cerrarDesplegables(excepto) {
+    $$('.desplegable > button[aria-controls]').forEach(b => {
+      if (b === excepto) return;
+      b.setAttribute('aria-expanded', 'false'); $('#' + b.getAttribute('aria-controls')).classList.remove('abierto');
+    });
+  }
+  $$('.desplegable > button[aria-controls]').forEach(b => b.addEventListener('click', e => {
+    e.stopPropagation();
+    const abrir = b.getAttribute('aria-expanded') !== 'true';
+    cerrarDesplegables(b);
+    b.setAttribute('aria-expanded', abrir ? 'true' : 'false');
+    $('#' + b.getAttribute('aria-controls')).classList.toggle('abierto', abrir);
+    if (abrir && e.detail === 0) { const l = $('#' + b.getAttribute('aria-controls') + ' a'); if (l) l.focus(); }
+  }));
+  document.addEventListener('click', e => { if (!e.target.closest('.desplegable')) cerrarDesplegables(); });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    const abierto = $('.desplegable > button[aria-expanded="true"]');
+    if (abierto) { cerrarDesplegables(); abierto.focus(); }
+  });
+  /* Ilustraciones: si falta el archivo definitivo, se usa la versión provisoria */
+  document.addEventListener('error', e => {
+    const im = e.target;
+    if (im.tagName === 'IMG' && im.dataset.provisoria && im.getAttribute('src') !== im.dataset.provisoria) im.src = im.dataset.provisoria;
+  }, true);
   $('.saltar').addEventListener('click', e => { e.preventDefault(); main.focus(); });
 
   const VISTAS = {};
@@ -153,7 +180,8 @@
     const c = document.createElement('div'); c.className = 'vista'; main.appendChild(c);
     VISTAS[ruta](c, partes[1]);
     actualizarBarra(ruta);
-    $('#menu').classList.remove('abierto'); $('#menu-boton').setAttribute('aria-expanded', 'false');
+    $('#menu').classList.remove('abierto'); $('#menu-boton').setAttribute('aria-expanded', 'false'); cerrarDesplegables();
+    main.classList.toggle('ancho-completo', ruta === 'inicio');
     const h1 = $('h1', main);
     document.title = (h1 && ruta !== 'inicio' ? h1.textContent + ' · ' : '') + 'La página que faltaba';
     window.scrollTo(0, 0);
@@ -180,36 +208,54 @@
   }
 
   /* ======================= PORTADA ======================= */
+  /* Ilustraciones: archivo definitivo en img/ y provisorio en img/provisorias/ */
+  const ilus = (nombre, alt, extra) => `<img src="img/${nombre}.webp" data-provisoria="img/provisorias/${nombre}.webp" alt="${esc(alt)}" ${extra || ''}>`;
+  const CARTAS = [
+    { ruta: 'cap1', n: '01', titulo: 'El hallazgo', img: 'cap1-hallazgo' },
+    { ruta: 'cap2', n: '02', titulo: 'Las voces', img: 'cap2-voces' },
+    { ruta: 'cap3', n: '03', titulo: 'Archivo de pistas', img: 'cap3-archivo' },
+    { ruta: 'cap4', n: '04', titulo: 'La viñeta', img: 'cap4-vineta' },
+    { ruta: 'cap5', n: '05', titulo: 'Decisiones', img: 'cap5-decisiones' }
+  ];
   VISTAS.inicio = function (c) {
     const p = progreso();
     const empezado = pistasHalladas().length > 0 || S.vinetas.length > 0;
     c.innerHTML = `
-    <section class="portada" aria-labelledby="titulo-portada">
-      <div class="portada-arte"><figure class="vineta">${A.portada()}</figure></div>
-      <div>
-        <p class="kicker">Historieta digital interactiva · Mendoza, 1874</p>
-        <h1 id="titulo-portada">La página que faltaba</h1>
-        <p class="subtitulo">Memorias de una historia olvidada</p>
-        <p class="intro">Trece años después del terremoto que destruyó Mendoza, Elena encuentra en el baúl de su abuela una hoja rota. Habla del acta de fundación de la ciudad y de unas personas cuyos «nombres no figuran en ningún» lugar.</p>
-        <p>¿Quién la escribió? ¿Quiénes recuerdan lo que pasó? ¿Qué voces quedaron fuera de la historia? Para averiguarlo vas a explorar objetos, escuchar testimonios que no coinciden, ordenar pistas, dibujar la viñeta que falta y decidir qué hacer con la página.</p>
-        <div class="acciones">
-          <a class="boton" href="#cap1">Comenzar la investigación →</a>
-          ${empezado ? `<a class="boton petroleo" href="#${siguientePendiente()}">Continuar donde lo dejé</a>` : ''}
-        </div>
-        <div class="secundarios">
-          <a class="boton secundario chico" href="#como">Cómo participar</a>
-          <a class="boton secundario chico" href="#fuentes">Fuentes y ficción</a>
-          <a class="boton secundario chico" href="#universo">Universo transmedia</a>
-        </div>
-        <p class="leyenda-clasif">En esta historia hay tres tipos de pistas: ${etiqueta('historica')} ${etiqueta('ficcion')} ${etiqueta('interpretacion')}</p>
+    <section class="heroe" aria-labelledby="titulo-portada">
+      ${ilus('portada-heroe', 'Ilustración: de espaldas, Elena sostiene una hoja antigua y deteriorada a la luz de un farol; por la ventana se ven las ruinas de una iglesia y la cordillera.', 'class="heroe-img" fetchpriority="high"')}
+      <div class="heroe-velo" aria-hidden="true"></div>
+      <div class="heroe-contenido">
+        <h1 id="titulo-portada" class="heroe-titulo"><span>La página</span> <span>que faltaba</span></h1>
+        <p class="heroe-cinta">Memorias de una historia olvidada</p>
+        <div class="ornamento" aria-hidden="true"><svg viewBox="0 0 300 24"><path d="M4 12 H118 M182 12 H296" stroke="currentColor" stroke-width="1.4"/><path d="M118 12 q8 -9 16 0 q-8 9 -16 0 Z M182 12 q-8 -9 -16 0 q8 9 16 0 Z" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M150 2 L153 9 L160 12 L153 15 L150 22 L147 15 L140 12 L147 9 Z" fill="currentColor"/><circle cx="104" cy="12" r="2" fill="currentColor"/><circle cx="196" cy="12" r="2" fill="currentColor"/></svg></div>
+        <p class="heroe-intro">Años después del terremoto de 1861, una hoja deteriorada reaparece y abre nuevas preguntas sobre la fundación de Mendoza, la revolución y las voces que casi no se escucharon. ¿Te animás a investigarlas?</p>
+        <a class="boton-tinta" href="#cap1">Comenzar la investigación <svg viewBox="0 0 10 16" aria-hidden="true"><path d="M2 2 L8 8 L2 14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        ${empezado ? `<a class="heroe-continuar" href="#${siguientePendiente()}">o continuar donde lo dejaste →</a>` : ''}
+        <ul class="heroe-enlaces" aria-label="Antes de empezar">
+          <li><a href="#como">Cómo participar</a></li>
+          <li><a href="#fuentes">Fuentes y ficción</a></li>
+          <li><a href="#universo">Universo transmedia</a></li>
+        </ul>
       </div>
+      <svg class="borde-rasgado" viewBox="0 0 1600 80" preserveAspectRatio="none" aria-hidden="true"><path fill="#ecdfc3" d="M0 80 L0 52 L38 46 L70 58 L118 40 L160 50 L205 34 L240 47 L292 38 L330 55 L380 42 L431 49 L470 30 L520 44 L566 37 L600 52 L652 40 L700 46 L742 28 L790 45 L842 36 L880 50 L930 41 L975 55 L1020 33 L1070 46 L1110 39 L1160 52 L1205 35 L1250 48 L1300 40 L1342 56 L1390 38 L1436 47 L1480 34 L1530 50 L1570 42 L1600 48 L1600 80 Z"/></svg>
     </section>
-    <section class="progreso-portada" aria-labelledby="titulo-recorrido">
-      <h2 id="titulo-recorrido">Tu recorrido</h2>
-      <p>Podés seguir el orden sugerido o volver a cualquier capítulo. El progreso se guarda solo en este dispositivo.</p>
-      <ol class="mapa-capitulos">
-        ${CAPITULOS.map(k => `<li class="${p[k.ruta] ? 'hecho' : ''}"><a href="#${k.ruta}"><strong>${k.n === '✓' ? '' : 'Capítulo ' + k.n + ' · '}${esc(k.titulo)}</strong><span class="estado">${p[k.ruta] ? '✓ Completado' : esc(k.meta)}</span></a></li>`).join('')}
+    <nav class="cartas" aria-label="Capítulos de la historia">
+      <ol>
+        ${CARTAS.map(k => `<li><a class="carta" href="#${k.ruta}">
+          <span class="carta-img">${ilus(k.img, '')}</span>
+          <span class="carta-rotulo"><span class="carta-num" aria-hidden="true">${k.n}</span><span class="carta-titulo"><span class="solo-lector">Capítulo ${+k.n}: </span>${esc(k.titulo)}</span></span>
+          ${p[k.ruta] ? '<span class="sello">Completado</span>' : ''}
+        </a></li>`).join('')}
       </ol>
+      <p class="cartas-pie">${p.cap5 ? '' : 'Podés seguir el orden o volver a cualquier capítulo. '}Al final: <a href="#cierre">autoevaluación y resumen de tu recorrido</a>${p.cierre ? ' ✓' : ''}.</p>
+    </nav>
+    <section class="banda-etiquetas" aria-labelledby="t-leer">
+      <h2 id="t-leer">Cómo leer esta historia</h2>
+      <ul>
+        <li>${etiqueta('historica')}<br>${esc(D.TIPOS.historica.explicacion)}</li>
+        <li>${etiqueta('ficcion')}<br>${esc(D.TIPOS.ficcion.explicacion)}</li>
+        <li>${etiqueta('interpretacion')}<br>${esc(D.TIPOS.interpretacion.explicacion)}</li>
+      </ul>
     </section>`;
   };
 
