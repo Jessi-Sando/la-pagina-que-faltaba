@@ -35,14 +35,16 @@ Es un sitio estático: no hay que compilar nada ni configurar un servidor.
 ```
 la-pagina-que-faltaba/
 ├── index.html        Estructura base: barra, menú, ventana modal, zona de impresión
-├── css/estilos.css   Identidad visual (papel envejecido, viñetas, corcho, impresión, responsive)
+├── css/estilos.css   Identidad visual (novela gráfica, viñetas, corcho, impresión, responsive)
+├── fuentes/          Tipografías libres alojadas localmente (Cinzel, Alegreya)
+├── img/              Ilustraciones optimizadas en WebP, organizadas por capítulo (ver sección 7)
 └── js/
     ├── datos.js      Contenido: pistas y su clasificación fija, objetos, voces, desenlaces, mapa transmedia
-    ├── arte.js       Ilustraciones en SVG generadas por código: fondos, personajes, globos, documentos
+    ├── arte.js       Globos de diálogo editables en SVG
     └── app.js        Navegación por capítulos, progreso local, bitácora, editor, decisiones, exportaciones
 ```
 
-**Tecnología:** HTML, CSS y JavaScript sin dependencias. Se eligió en lugar de React/TypeScript para que funcione abriendo el archivo directamente, sin compilación, sin conexión y en equipos escolares modestos. No hay imágenes externas: todo el arte es SVG propio.
+**Tecnología:** HTML, CSS y JavaScript sin dependencias. Se eligió en lugar de React/TypeScript para que funcione abriendo el archivo directamente, sin compilación, sin conexión y en equipos escolares modestos. Las ilustraciones son archivos WebP incluidos en el proyecto; los textos, globos y controles son HTML/SVG accesibles.
 
 **Datos:** el progreso se guarda en el navegador (`localStorage`, clave `lpqf-progreso-v1`). No hay registro, servidor ni servicios externos.
 
@@ -50,14 +52,14 @@ la-pagina-que-faltaba/
 
 | Sección | Qué hace |
 |---|---|
-| Portada | Ilustración, introducción, «Comenzar la investigación», «Continuar donde lo dejé», accesos a Cómo participar, Fuentes y ficción y Universo transmedia, mapa de progreso por capítulo |
-| Cap. 1 · El hallazgo | Tira de 3 viñetas + habitación explorable con 4 objetos (hoja, cajita con carta, almanaque/grieta del terremoto, ventana a las ruinas). Cada objeto abre un documento ilustrado, una nota de contexto y registra pistas |
-| Cap. 2 · Las voces | 4 personajes ficticios con retrato, rol y perspectiva. Se consultan en cualquier orden con 3 preguntas cada uno; diálogo en viñeta + transcripción. Tablero de versiones (corcho) que compara las respuestas. Al completar voces se desbloquean 3 interpretaciones |
-| Cap. 3 · Archivo | Fichas con nombre, descripción, procedencia, relaciones navegables y clasificación. El estudiante propone una clasificación y recibe devolución; **la clasificación oficial no cambia**. Filtros. Comparador de dos testimonios con justificación escrita y lista de comparaciones |
-| Cap. 4 · La viñeta que falta | Editor real: 6 fondos, 7 personajes (incluye siluetas), 4 tipos de globo, cola configurable, arrastre con mouse/dedo, movimiento con teclado, tamaño, voltear, traer al frente, quitar. Fundamentación obligatoria (título, pistas, qué es ficción, qué se apoya en fuentes). Vista previa, galería, edición posterior, **descarga PNG** e **impresión / PDF** |
-| Cap. 5 · Decisiones | Dilema con 3 opciones, justificación mínima y pistas de apoyo. 3 desenlaces distintos (3 viñetas + consecuencias + pregunta abierta). Se pueden explorar los otros finales, escribir un desenlace propio y reconsiderar la decisión |
+| Portada | Ilustración principal de Elena, título y botones en HTML, introducción, «Comenzar la investigación», «Continuar donde lo dejé», accesos a Cómo participar, Fuentes y ficción y Universo transmedia, mapa de progreso por capítulo |
+| Cap. 1 · El hallazgo | Secuencia de 3 viñetas ilustradas + escritorio de Elena explorable con 4 elementos (hoja, cartas atadas, dibujo de las ruinas, ventana). Cada uno abre su ilustración, la transcripción, una nota de contexto y registra pistas |
+| Cap. 2 · Las voces | 4 personajes ficticios con retrato, rol y perspectiva; cada entrevista tiene su escena ilustrada con globos en HTML. Se consultan en cualquier orden con 3 preguntas cada uno; diálogo + transcripción. Tablero de versiones (corcho) que compara las respuestas. Al completar voces se desbloquean 3 interpretaciones |
+| Cap. 3 · Archivo | Mesa de investigación ilustrada con 5 documentos explorables y ampliables (plano, carta, registro y dos bocetos), marcados como recreaciones ficticias. Fichas con nombre, descripción, procedencia, relaciones navegables y clasificación. El estudiante propone una clasificación y recibe devolución; **la clasificación oficial no cambia**. Filtros. Comparador de dos testimonios con justificación escrita y lista de comparaciones |
+| Cap. 4 · La viñeta que falta | Editor real con ilustraciones: 6 escenarios, 5 personajes de cuerpo entero, 5 en plano medio, 5 gestos de Elena, 10 objetos y 4 recursos gráficos, 4 tipos de globo, cola configurable, arrastre con mouse/dedo, movimiento con teclado, tamaño, voltear, traer al frente, enviar atrás, quitar. Fundamentación obligatoria (título, pistas, qué es ficción, qué se apoya en fuentes). Vista previa, galería, edición posterior, **descarga PNG** e **impresión / PDF** |
+| Cap. 5 · Decisiones | Dilema con 3 opciones, justificación mínima y pistas de apoyo. 3 desenlaces distintos (ilustración propia + relato en 3 momentos + consecuencias + pregunta abierta). Se pueden explorar los otros finales, escribir un desenlace propio y reconsiderar la decisión |
 | Universo transmedia | Mapa interactivo que diferencia materiales originales, nueva expansión y futuras expansiones, con enlaces reales verificados |
-| Cierre | Autoevaluación con los 5 criterios, evidencias automáticas de lo hecho, reflexión final, resumen completo (pistas, clasificaciones, comparaciones, viñetas, decisión, bitácora) imprimible o descargable en `.html` |
+| Cierre | Ilustración final sobre la memoria colectiva. Autoevaluación con los 5 criterios, evidencias automáticas de lo hecho, reflexión final, resumen completo (pistas, clasificaciones, comparaciones, viñetas, decisión, bitácora) imprimible o descargable en `.html` (con las viñetas incrustadas) |
 | Docentes | Objetivos, secuencia de 4 encuentros, modalidades, rúbrica, justificación del formato, cuidados |
 | Progreso | Guardado automático; exportar/importar copia `.json`; recorrido de demostración; reinicio |
 | Accesibilidad | Navegación completa por teclado, foco visible, enlace «saltar al contenido», textos alternativos en todas las ilustraciones, diálogos también en texto, avisos con `aria-live`, contraste alto, respeta «reducir movimiento» |
@@ -82,3 +84,33 @@ Probado en Chromium (escritorio y vista móvil 375 px) con el servidor local:
 - Los datos marcados como **fuente histórica** son: fundación de Mendoza (2/3/1561, Pedro del Castillo), terremoto del 20/3/1861, reconstrucción de la ciudad en una nueva traza y Ruinas de San Francisco (Área Fundacional), registros de las lenguas allentiac y millcayac (Luis de Valdivia, 1607) y las Lagunas de Guanacache como territorio huarpe con comunidades actuales.
 - No se inventan citas históricas ni vestimentas, símbolos o prácticas huarpes.
 - Las descripciones de las piezas originales se limitan a lo que informa la página de educ.ar.
+
+## 7. Ilustraciones
+
+| Carpeta | Contenido | Dónde se usa |
+|---|---|---|
+| `img/portada/` | Ilustración principal de Elena | Portada |
+| `img/tarjetas/` | 5 tarjetas de capítulo (la de «Las voces» se compuso con los retratos de las entrevistas) | Portada |
+| `img/cap1/` | 3 viñetas de la secuencia + escena del escritorio | Capítulo 1 |
+| `img/cap2/` | 4 entrevistas, 4 retratos recortados, tira de las cuatro voces | Capítulo 2 |
+| `img/cap3/` | Mesa de investigación, plano, carta, registro y 2 bocetos (recreaciones ficticias) | Capítulo 3 y objetos del Cap. 1 |
+| `img/cap4/fondos/` | 6 escenarios en 4:3 | Editor |
+| `img/cap4/personajes/` | Personajes sin fondo: 5 de cuerpo entero y 5 en plano medio (Tomás: versión oficial de herrero) | Editor y «Fuentes y ficción» |
+| `img/cap4/gestos/`, `objetos/`, `recursos/` | 5 expresiones de Elena, 10 objetos, 4 recursos gráficos, sin fondo | Editor |
+| `img/cap5/` | Cruce de caminos y los 3 desenlaces | Capítulo 5 |
+| `img/cierre/` | La memoria colectiva | Cierre |
+| `img/general/` | Collage de capítulos, lámina de personajes, referencia oficial de Tomás | Cómo participar / referencia |
+
+**Referencia de personajes:** Tomás Videla es herrero (40–45 años, bigote, gorra marrón, chaleco y delantal). Su referencia oficial es `img/general/tomas-referencia.webp`.
+
+## 8. Actualizar la publicación en GitHub Pages
+
+Desde la carpeta del proyecto:
+
+```bash
+git add -A
+git commit -m "Descripción del cambio"
+git push
+```
+
+GitHub Pages publica la nueva versión en uno o dos minutos en https://jessi-sando.github.io/la-pagina-que-faltaba/ (recargar con Ctrl + F5).

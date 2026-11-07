@@ -576,3 +576,115 @@ table.rubrica thead th { background: var(--tinta); color: var(--crema); font-fam
 /* Viñetas de una misma tira con igual alto */
 .vineta { display: flex; flex-direction: column; }
 .vineta .cartela { flex: 1; }
+
+/* =========================================================
+   Integración de ilustraciones (novela gráfica)
+   ========================================================= */
+.vineta-ilus { background: #1d140c; border: 3px solid var(--tinta); border-radius: 4px 7px 5px 8px; box-shadow: 0 1px 0 rgba(255,255,255,.3) inset, 0 12px 26px rgba(30, 18, 8, .28); }
+.vineta-marco { position: relative; overflow: hidden; }
+.vineta-marco > img { display: block; width: 100%; height: auto; }
+.vineta-ilus .cartela { font-family: var(--serif); font-size: clamp(.98rem, 1.5vw, 1.1rem); background: linear-gradient(180deg, #f2ddac, #e8cd94); }
+.sin-giro { transform: none !important; }
+.vineta.banner { margin: 0 0 1.4rem; transform: none !important; }
+.vineta.banner .vineta-marco > img { max-height: 430px; object-fit: cover; object-position: center 30%; }
+.vineta.banner-bajo .vineta-marco > img { max-height: 300px; }
+.tira-hallazgo { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 760px) { .tira-hallazgo { grid-template-columns: 1fr; } }
+.escena { max-width: 1040px; }
+.titulo-seccion { margin-top: 2.4rem; }
+
+.aviso-ficcion {
+  display: flex; gap: .6rem; align-items: flex-start; margin: .8rem 0; padding: .6rem .9rem; font-size: .98rem; line-height: 1.45;
+  background: rgba(143, 61, 39, .08); border: 1.5px dashed var(--fic); border-radius: 4px; color: #4a2a1c;
+}
+.aviso-ficcion > span:first-child { color: var(--fic); font-weight: 700; }
+
+/* Documentos y objetos en ventana */
+.doc-ampliado { margin: .8rem 0; }
+.doc-ampliado img { display: block; width: 100%; height: auto; border: 3px solid var(--tinta); border-radius: 3px; }
+.doc-chico img { max-width: 360px; margin: 0 auto; background: #e9dab8; padding: .6rem; }
+.transcripcion-doc {
+  margin: .8rem 0; padding: .8rem 1.1rem; border-left: 5px solid var(--terracota);
+  background: repeating-linear-gradient(180deg, #f6ead0 0 1.55rem, #e8d6b0 1.55rem calc(1.55rem + 1px));
+  font-family: var(--serif); font-style: italic; font-size: 1.1rem; line-height: 1.55rem;
+}
+.transcripcion-doc p { margin: 0; }
+.transcripcion-doc .kicker { font-style: normal; margin-bottom: .2rem; }
+.zoom { max-height: 62vh; overflow: auto; border: 3px solid var(--tinta); background: #2a1c12; cursor: zoom-in; border-radius: 3px; }
+.zoom img { display: block; width: 100%; height: auto; }
+.zoom.acercado { cursor: zoom-out; }
+.zoom.acercado img { width: 240%; max-width: none; }
+
+/* Capítulo 2: voces */
+.voces .voz { position: relative; overflow: hidden; border-radius: 4px; }
+.voz-retrato { display: block; border-bottom: 3px solid var(--tinta); }
+.voz-retrato img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; transition: transform .3s; }
+.voz:hover .voz-retrato img { transform: scale(1.04); }
+.voz .sello { top: 12px; right: 12px; }
+.tablero-foto { display: block; width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid #f6ecd2; margin-bottom: .3rem; box-shadow: 0 2px 4px rgba(0,0,0,.4); }
+.escena-voz .vineta-marco { position: relative; }
+.globo-html {
+  position: absolute; max-width: 50%; padding: .65rem .95rem; z-index: 1;
+  font-family: var(--serif); font-size: clamp(.92rem, 1.2vw, 1.08rem); line-height: 1.38; color: var(--tinta);
+  background: #fffaf0; border: 2.5px solid var(--tinta); border-radius: 20px; box-shadow: 3px 4px 0 rgba(30, 18, 8, .35);
+}
+.globo-voz { top: 3%; left: 3%; }
+.globo-voz::after { content: ""; position: absolute; right: 18%; bottom: -16px; width: 26px; height: 18px; background: #fffaf0; border-right: 2.5px solid var(--tinta); border-bottom: 2.5px solid var(--tinta); transform: skewX(-35deg); border-bottom-right-radius: 4px; }
+.globo-elena { bottom: 3%; left: 3%; max-width: 40%; background: #f0d9a0; border-radius: 4px; font-style: italic; }
+.globo-quien { display: block; font-family: 'Alegreya SC', var(--serif); font-style: normal; font-weight: 700; font-size: .82em; color: var(--terracota-osc); letter-spacing: .03em; }
+@media (max-width: 700px) {
+  .escena-voz .vineta-marco { display: flex; flex-direction: column; background: var(--papel); }
+  .globo-html { position: static; max-width: none; margin: .55rem .55rem 0; box-shadow: none; }
+  .globo-elena { order: 2; margin-bottom: .55rem; }
+  .globo-voz::after { display: none; }
+}
+.otras-voces { list-style: none; padding: 0; margin: .5rem 0 0; display: flex; flex-wrap: wrap; gap: 1rem; }
+.otras-voces a { display: flex; align-items: center; gap: .6rem; text-decoration: none; color: var(--tinta); background: var(--crema); border: 2px solid var(--tinta); border-radius: 99px; padding: .25rem 1rem .25rem .25rem; box-shadow: 2px 2px 0 var(--tinta); }
+.otras-voces a:hover { background: #fff; color: var(--tinta); }
+.otras-voces img { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; }
+
+/* Capítulo 3: mesa */
+.mesa-seccion { margin: 1.4rem 0 1rem; }
+
+/* Capítulo 4: editor con recursos ilustrados */
+.miniaturas button img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.grupo-recursos { border: 0 !important; background: none !important; margin-bottom: .4rem; }
+.grupo-recursos > summary { padding: .35rem 0 !important; border-bottom: 1px dashed var(--sepia) !important; font-size: .92rem; }
+.recursos-botones { display: grid; grid-template-columns: repeat(auto-fill, minmax(82px, 1fr)); gap: 6px; padding-top: .5rem; }
+.recursos-botones button {
+  display: flex; flex-direction: column; align-items: center; gap: .2rem; cursor: pointer; padding: .3rem .2rem;
+  background: #e7d6b0; border: 2px solid var(--tinta); border-radius: 4px; font-family: var(--serif); font-size: .78rem; line-height: 1.1; color: var(--tinta);
+}
+.recursos-botones button:hover { background: var(--crema); }
+.recursos-botones img { width: 100%; height: 78px; object-fit: contain; }
+.recursos-botones.gestos img { height: 66px; }
+.sel-titulo img { height: 46px; width: auto; vertical-align: middle; margin-right: .3rem; }
+.lienzo .item image { cursor: grab; }
+.vista-previa svg { display: block; width: 100%; height: auto; }
+
+/* Capítulo 5: desenlaces */
+.opcion-final img { flex: none; width: 64px; height: 76px; object-fit: cover; border: 2px solid var(--tinta); border-radius: 3px; }
+.final-escena { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 1.6rem; align-items: start; margin: 1rem 0 1.5rem; }
+@media (max-width: 860px) { .final-escena { grid-template-columns: 1fr; } .final-escena .vineta { max-width: 460px; } }
+.relato-final { list-style: none; padding: 0; margin: 0 0 1rem; counter-reset: escena; display: flex; flex-direction: column; gap: .7rem; }
+.relato-final li { counter-increment: escena; position: relative; background: #f2ddac; border: 2px solid var(--tinta); padding: .7rem 1rem .7rem 3rem; box-shadow: 3px 3px 0 rgba(30,18,8,.3); }
+.relato-final li::before { content: counter(escena); position: absolute; left: .7rem; top: .6rem; font-family: var(--display); font-weight: 700; font-size: 1.3rem; color: var(--terracota-osc); }
+.relato-final p { margin: 0 0 .3rem; }
+.dialogo-final { font-style: italic; padding-left: .6rem; border-left: 3px solid var(--terracota); }
+.decision-propia { margin-top: 1rem; }
+.otros-finales { list-style: none; padding: 0; margin: .6rem 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 220px)); gap: 1rem; }
+@media (max-width: 600px) { .otros-finales { grid-template-columns: repeat(3, 1fr); gap: .5rem; } }
+.otros-finales button { width: 100%; padding: 0; cursor: pointer; background: var(--crema); border: 2px solid var(--tinta); border-radius: 4px; overflow: hidden; display: flex; flex-direction: column; font-family: 'Alegreya SC', var(--serif); font-weight: 700; font-size: .95rem; color: var(--tinta); box-shadow: 3px 3px 0 var(--tinta); }
+.otros-finales img { width: 100%; aspect-ratio: 474 / 400; object-fit: cover; object-position: center 30%; }
+.otros-finales span { padding: .45rem .5rem; }
+.otros-finales button[aria-current="true"] { outline: 4px solid var(--terracota); outline-offset: 2px; }
+
+/* Cierre y fuentes */
+.cierre-ilus { margin-bottom: 1.6rem; }
+.cierre-ilus { max-width: 1000px; margin-left: auto; margin-right: auto; }
+.galeria-personajes { list-style: none; padding: 1rem; margin: 0 0 1.6rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem 1.6rem;
+  background: radial-gradient(ellipse at center, #f4e6c6 40%, #e2cc9d 100%); border: 2px solid var(--tinta); border-radius: 4px; }
+.galeria-personajes li { display: flex; flex-direction: column; align-items: center; text-align: center; width: 120px; }
+.galeria-personajes img { height: 190px; width: 100%; object-fit: contain; object-position: bottom; }
+.galeria-personajes strong { font-family: 'Alegreya SC', var(--serif); margin-top: .3rem; }
+.galeria-personajes span { font-size: .88rem; color: var(--tinta-suave); }

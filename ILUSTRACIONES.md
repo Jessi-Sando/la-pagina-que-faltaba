@@ -19,7 +19,7 @@ Para que los personajes se vean iguales en todos los capítulos, generá primero
 | **Elena** (protagonista, 15 años) | Pelo castaño oscuro ondulado, recogido en un rodete bajo y desprolijo con mechones sueltos. Blusa de lino crema gastada, falda larga marrón, chal de lana **terracota**. Mirada seria y curiosa. |
 | **Rosario Funes** (lavandera, ~65) | Pelo canoso en rodete, piel curtida, chal terracota oscuro, delantal, manos de trabajo. Expresión cálida y firme. |
 | **Aurelio Ponce** (ex escribiente, ~60) | Delgado, levita oscura gastada, galera, anteojos redondos, cuello alto. Expresión desconfiada. Suele llevar papeles. |
-| **Tomás Videla** (arriero, ~50) | Sombrero de ala ancha, barba entrecana, chaqueta de cuero gastada, pañuelo al cuello. Expresión reservada. |
+| **Tomás Videla** (herrero, 40–45) | Robusto, bigote oscuro, gorra marrón, camisa clara arremangada, chaleco y delantal de herrero. Expresión reservada. **Referencia definitiva: la escena de su entrevista en el taller.** |
 | **Elvira Sosa** (maestra, ~35) | Vestido sepia de cuello alto, pelo recogido, un libro bajo el brazo. Expresión reflexiva. |
 | **Abuela Teodora** (en recuerdos, ~75) | Pelo blanco en rodete, chal azul petróleo, bastón. |
 

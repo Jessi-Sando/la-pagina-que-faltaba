@@ -16,7 +16,7 @@
   /* ======================= ESTADO ======================= */
   const BASE = () => ({
     pistas: {}, objetosVistos: {}, preguntas: {}, clasif: {}, comparaciones: [],
-    vinetas: [], editor: null, decision: null, finalesVistos: {}, desenlacePropio: '',
+    vinetas: [], editor: null, decision: null, docsVistos: {}, finalesVistos: {}, desenlacePropio: '',
     autoeval: { criterios: [false, false, false, false, false], reflexion: '', nombre: '' },
     bitacora: []
   });
@@ -201,28 +201,27 @@
       ${sig ? `<a class="boton" href="#${sig[0]}">${esc(textoSig || sig[1])} →</a>` : ''}
     </nav>`;
   }
-  function figuraNarrativa(e, extraClase) {
-    const alt = e.alt + ((e.globos || []).length ? ' Diálogos: ' + e.globos.map(g => '«' + g.texto + '»').join(' ') : '');
-    return `<figure class="vineta ${extraClase || ''}">${A.escena({ fondo: e.fondo, figuras: (e.figuras || []).map(f => ({ f: f.f, x: f.x, y: f.y, s: f.s, espejo: f.espejo })), globos: (e.globos || []).map(g => Object.assign({ fs: 28, max: 17 }, g)), alt })}
-      ${e.cartela ? `<figcaption class="cartela">${esc(e.cartela)}</figcaption>` : ''}</figure>`;
+  /* Viñeta ilustrada: imagen + cartela en HTML (texto accesible y legible) */
+  function vinetaImagen(e, clase) {
+    return `<figure class="vineta vineta-ilus ${clase || ''}"><div class="vineta-marco"><img src="${e.imagen}" alt="${esc(e.alt || '')}" loading="lazy" decoding="async"></div>${e.cartela ? `<figcaption class="cartela">${esc(e.cartela)}</figcaption>` : ''}</figure>`;
   }
+  const avisoFiccion = html => `<p class="aviso-ficcion" role="note"><span aria-hidden="true">✎</span> <span>${html}</span></p>`;
 
-  /* ======================= PORTADA ======================= */
-  /* Ilustraciones: archivo definitivo en img/ y provisorio en img/provisorias/ */
-  const ilus = (nombre, alt, extra) => `<img src="img/${nombre}.webp" data-provisoria="img/provisorias/${nombre}.webp" alt="${esc(alt)}" ${extra || ''}>`;
+  /* Ilustraciones de la portada (carpeta img/) */
+  const ilus = (ruta, alt, extra) => `<img src="img/${ruta}.webp" alt="${esc(alt)}" ${extra || ''}>`;
   const CARTAS = [
-    { ruta: 'cap1', n: '01', titulo: 'El hallazgo', img: 'cap1-hallazgo' },
-    { ruta: 'cap2', n: '02', titulo: 'Las voces', img: 'cap2-voces' },
-    { ruta: 'cap3', n: '03', titulo: 'Archivo de pistas', img: 'cap3-archivo' },
-    { ruta: 'cap4', n: '04', titulo: 'La viñeta', img: 'cap4-vineta' },
-    { ruta: 'cap5', n: '05', titulo: 'Decisiones', img: 'cap5-decisiones' }
+    { ruta: 'cap1', n: '01', titulo: 'El hallazgo', img: 'tarjetas/cap1-hallazgo' },
+    { ruta: 'cap2', n: '02', titulo: 'Las voces', img: 'tarjetas/cap2-voces' },
+    { ruta: 'cap3', n: '03', titulo: 'Archivo de pistas', img: 'tarjetas/cap3-archivo' },
+    { ruta: 'cap4', n: '04', titulo: 'La viñeta', img: 'tarjetas/cap4-vineta' },
+    { ruta: 'cap5', n: '05', titulo: 'Decisiones', img: 'tarjetas/cap5-decisiones' }
   ];
   VISTAS.inicio = function (c) {
     const p = progreso();
     const empezado = pistasHalladas().length > 0 || S.vinetas.length > 0;
     c.innerHTML = `
     <section class="heroe" aria-labelledby="titulo-portada">
-      ${ilus('portada-heroe', 'Ilustración: de espaldas, Elena sostiene una hoja antigua y deteriorada a la luz de un farol; por la ventana se ven las ruinas de una iglesia y la cordillera.', 'class="heroe-img" fetchpriority="high"')}
+      ${ilus('portada/portada-heroe', 'Ilustración: de espaldas, Elena sostiene una hoja antigua y deteriorada a la luz de un farol; por la ventana se ven las ruinas de una iglesia y la cordillera.', 'class="heroe-img" fetchpriority="high"')}
       <div class="heroe-velo" aria-hidden="true"></div>
       <div class="heroe-contenido">
         <h1 id="titulo-portada" class="heroe-titulo"><span>La página</span> <span>que faltaba</span></h1>
@@ -263,12 +262,13 @@
   VISTAS.como = function (c) {
     c.innerHTML = `
     <header class="cabecera"><div><p class="kicker">Guía para estudiantes</p><h1>Cómo participar</h1></div></header>
+    ${vinetaImagen({ imagen: 'img/general/collage-capitulos.webp', alt: 'Collage de cinco viñetas: ruinas de la ciudad, un grupo de personajes, documentos bajo una lupa, una mano dibujando una historieta y un cartel en un cruce de caminos.' }, 'banner banner-bajo')}
     <p class="bajada">Sos investigador o investigadora de una historia que nadie terminó de contar. No hay una única respuesta correcta: lo importante es que puedas <strong>justificar</strong> lo que pensás con pistas.</p>
     <ol class="pasos">
-      <li><strong>Explorá.</strong> En el Capítulo 1, tocá los objetos marcados con 🔍 en la habitación de Elena. Cada objeto agrega pistas a tu bitácora.</li>
+      <li><strong>Explorá.</strong> En el Capítulo 1, tocá los objetos marcados con 🔍 en el escritorio de Elena. Cada objeto agrega pistas a tu bitácora.</li>
       <li><strong>Escuchá.</strong> En el Capítulo 2, hacé preguntas a cuatro personas. Sus recuerdos no coinciden: anotá las diferencias en el tablero de versiones.</li>
-      <li><strong>Ordená.</strong> En el Capítulo 3, clasificá cada pista: ¿es una fuente histórica, un elemento de ficción o una interpretación? Compará dos testimonios y escribí por qué creés que difieren.</li>
-      <li><strong>Creá.</strong> En el Capítulo 4, armá la viñeta que falta: fondo, personajes, globos y texto propio. Explicá qué inventaste y en qué fuentes te apoyaste.</li>
+      <li><strong>Ordená.</strong> En el Capítulo 3, examiná los documentos de la mesa y clasificá cada pista: ¿es una fuente histórica, un elemento de ficción o una interpretación? Compará dos testimonios y escribí por qué creés que difieren.</li>
+      <li><strong>Creá.</strong> En el Capítulo 4, armá la viñeta que falta con escenarios, personajes, gestos, objetos, globos y texto propio. Explicá qué inventaste y en qué fuentes te apoyaste.</li>
       <li><strong>Decidí.</strong> En el Capítulo 5, elegí qué hace Elena con la página y justificá tu decisión. Cada elección lleva a un final distinto.</li>
       <li><strong>Revisá.</strong> En el Cierre, autoevaluate y descargá o imprimí el resumen de tu recorrido para entregarlo.</li>
     </ol>
@@ -339,6 +339,9 @@
     c.innerHTML = `
     <header class="cabecera"><div><p class="kicker">Para leer con lupa</p><h1>Fuentes y ficción</h1></div></header>
     <p class="bajada">Esta historieta mezcla un contexto histórico real con personajes y sucesos inventados. Esta página separa con claridad qué es qué.</p>
+    <ul class="galeria-personajes" aria-label="Personajes de la historia (todos ficticios)">
+      ${[['elena-cuerpo', 'Elena', 'Protagonista, 15 años'], ['rosario-cuerpo', 'Rosario Funes', 'Lavandera'], ['aurelio-cuerpo', 'Aurelio Ponce', 'Ex escribiente'], ['tomas-medio', 'Tomás Videla', 'Herrero'], ['elvira-cuerpo', 'Elvira Sosa', 'Maestra'], ['teodora-cuerpo', 'Abuela Teodora', 'En recuerdos']].map(([f, n, r]) => `<li><img src="img/cap4/personajes/${f}.webp" alt=""><strong>${n}</strong><span>${r}</span></li>`).join('')}
+    </ul>
     <div class="columnas">
       <section class="caja hist" aria-labelledby="t-h">
         <h2 id="t-h">${etiqueta('historica')} Contexto documentado</h2>
@@ -352,6 +355,7 @@
           <li><strong>Objetos:</strong> la hoja rota firmada «T.», la carta de Teodora, el almanaque y el cajón del cabildo tal como se los describe.</li>
           <li><strong>Sucesos:</strong> la búsqueda de los jóvenes del farol, la caja llevada hacia el norte y todos los testimonios.</li>
           <li><strong>Del universo original:</strong> la «revolución huarpe» del cuento escrito por estudiantes es ficticia: no forma parte del registro histórico documentado.</li>
+          <li><strong>Documentos ilustrados:</strong> el plano, la carta al señor Ponce, el registro de obras, los bocetos y todos los sellos son recreaciones ficticias. Aunque muestren fechas como 1861, no son fuentes históricas auténticas.</li>
           <li>Ningún diálogo de esta aplicación es una cita histórica.</li>
         </ul>
       </section>
@@ -414,15 +418,15 @@
   VISTAS.cap1 = function (c) {
     const vistos = S.objetosVistos;
     c.innerHTML = `
-    <header class="cabecera"><div><p class="kicker">Capítulo 1</p><h1>El hallazgo</h1></div><span>${Object.keys(vistos).length} de ${D.OBJETOS.length} objetos explorados</span></header>
-    <div class="tira">${D.TIRA_HALLAZGO.map(e => figuraNarrativa(e)).join('')}</div>
-    <h2>Explorá la habitación de Elena</h2>
-    <p class="instruccion">Hay <strong>cuatro objetos</strong> que guardan pistas. Tocá los círculos 🔍 de la imagen (o usá la lista de abajo). Para avanzar necesitás explorar <strong>al menos tres</strong>, incluida la hoja.</p>
+    <header class="cabecera"><div><p class="kicker">Capítulo 1</p><h1>El hallazgo</h1></div><span id="cap1-cuenta">${Object.keys(vistos).length} de ${D.OBJETOS.length} objetos explorados</span></header>
+    <div class="tira tira-hallazgo">${D.TIRA_HALLAZGO.map(e => vinetaImagen(e)).join('')}</div>
+    <h2>Explorá el escritorio de Elena</h2>
+    <p class="instruccion">De vuelta en su cuarto, Elena despliega todo sobre la mesa. Hay <strong>cuatro elementos</strong> que guardan pistas. Tocá los círculos de la ilustración (o usá la lista de abajo). Para avanzar necesitás explorar <strong>al menos tres</strong>, incluida la hoja.</p>
     <div class="escena">
-      <figure class="vineta">${A.escena({ fondo: 'cuarto', figuras: [{ f: 'elena', x: 150, y: 590, s: .8 }], alt: 'La habitación de Elena: un baúl abierto con una hoja encima, un estante con una cajita roja, una pared agrietada con un almanaque y una ventana que da a las ruinas.' })}</figure>
+      ${vinetaImagen({ imagen: 'img/cap1/escena-escritorio.webp', alt: 'Elena, pensativa, sostiene la hoja en su escritorio. Hay un atado de cartas, libros apilados, un farol y un tintero; en la pared, una fotografía y un dibujo de una iglesia; por la ventana se ve la cordillera.' }, 'sin-giro')}
       ${D.OBJETOS.map((o, i) => `<button class="punto ${vistos[o.id] ? 'visto' : ''}" data-obj="${o.id}" style="left:${o.x}%;top:${o.y}%" aria-label="Objeto ${i + 1}: ${esc(o.etiqueta)}${vistos[o.id] ? ' (ya explorado)' : ''}"><span aria-hidden="true">🔍</span><span class="rotulo" aria-hidden="true">${esc(o.etiqueta)}</span></button>`).join('')}
     </div>
-    <ul class="lista-objetos" aria-label="Objetos de la escena">
+    <ul class="lista-objetos" aria-label="Elementos del escritorio">
       ${D.OBJETOS.map(o => `<li><button data-obj="${o.id}" class="${vistos[o.id] ? 'visto' : ''}">${vistos[o.id] ? '✓' : '🔍'} ${esc(o.etiqueta)}</button></li>`).join('')}
     </ul>
     <div id="cap1-fin"></div>
@@ -441,19 +445,21 @@
     if (nuevo) registrar('Exploró el objeto: ' + o.etiqueta);
     const ganadas = o.pistas.filter(p => ganarPista(p, true));
     guardar();
+    const ficticio = D.PISTAS[o.pistas[0]].tipo === 'ficcion';
     abrirModal(`
       <p class="kicker">Objeto explorado</p>
       <h2 id="modal-titulo">${esc(o.etiqueta)}</h2>
-      <div class="doc">${A.DOCS[o.visual]()}</div>
+      <div class="doc-ampliado ${o.id === 'cartas' || o.id === 'dibujo' ? 'doc-chico' : ''}"><img src="${o.imagen}" alt="${esc(o.alt)}"></div>
       <p>${esc(o.texto)}</p>
-      <p class="nota-contexto ${D.PISTAS[o.pistas[0]].tipo === 'ficcion' && o.pistas.length === 1 ? 'fic' : ''}">${esc(o.contexto)}</p>
+      ${o.transcripcion ? `<div class="transcripcion-doc"><p class="kicker">Lo que se puede leer</p>${o.transcripcion.map(l => `<p>${esc(l)}</p>`).join('')}</div>` : ''}
+      <p class="nota-contexto ${ficticio ? 'fic' : ''}">${esc(o.contexto)}</p>
       <h3>${ganadas.length ? 'Pistas agregadas a tu bitácora' : 'Pistas de este objeto (ya estaban en tu bitácora)'}</h3>
       <ul class="pistas-ganadas">${o.pistas.map(p => `<li>${etiqueta(D.PISTAS[p].tipo)} <strong>${esc(D.PISTAS[p].nombre)}</strong></li>`).join('')}</ul>
       <div class="acciones"><button class="boton" id="seguir-explorando">Seguir explorando</button><a class="boton secundario" href="#cap3">Ver la bitácora</a></div>`,
     m => { $('#seguir-explorando', m).addEventListener('click', cerrarModal); });
     if (ganadas.length) aviso(ganadas.length === 1 ? 'Nueva pista registrada.' : ganadas.length + ' pistas nuevas registradas.');
     $$(`[data-obj="${id}"]`).forEach(b => { b.classList.add('visto'); if (b.classList.contains('punto')) b.setAttribute('aria-label', b.getAttribute('aria-label').replace(/ \(ya explorado\)$/, '') + ' (ya explorado)'); else b.textContent = '✓ ' + o.etiqueta; });
-    const h = $('.cabecera span'); if (h) h.textContent = `${Object.keys(S.objetosVistos).length} de ${D.OBJETOS.length} objetos explorados`;
+    const h = $('#cap1-cuenta'); if (h) h.textContent = `${Object.keys(S.objetosVistos).length} de ${D.OBJETOS.length} objetos explorados`;
     pintarFinCap1(); actualizarBarra('cap1');
   }
 
@@ -464,29 +470,33 @@
     const comp = vocesCompletas();
     c.innerHTML = `
     <header class="cabecera"><div><p class="kicker">Capítulo 2</p><h1>Las voces</h1></div><span>${comp.length} de 4 voces escuchadas completas</span></header>
-    <p class="bajada">Elena sale a preguntar. Cada persona recuerda distinto: algunas hablan de una búsqueda, otras de documentos perdidos, otras prefieren callar.</p>
+    ${vinetaImagen({ imagen: 'img/cap2/las-voces.webp', alt: 'Cuatro viñetas: Rosario junto a su tacho de lavar, Aurelio con sombrero y un papel en la mano, Tomás apoyado en el yunque de su taller y Elvira junto a una taza de té.', cartela: 'Elena sale a preguntar. Cada persona recuerda distinto: algunas hablan de una búsqueda, otras de documentos perdidos, otras prefieren callar.' }, 'banner')}
     <p class="instruccion">Elegí a quién escuchar, <strong>en el orden que quieras</strong>. Hacé las tres preguntas a cada persona. Nadie tiene «la» verdad: tu tarea es <strong>comparar versiones</strong>. Escuchá al menos a tres para avanzar.</p>
     <ul class="voces">
       ${ORDEN_VOCES.map(id => {
         const v = D.VOCES[id], n = (S.preguntas[id] || []).length;
-        return `<li class="voz"><div class="retrato">${A.retrato(id)}</div><div class="voz-cuerpo">
-          <h3>${esc(v.nombre)}</h3><p class="rol">${esc(v.rol)}</p><span class="perspectiva">${esc(v.perspectiva)}</span>
-          <span class="progreso-voz">${n === 3 ? '✓ Testimonio completo' : n + ' de 3 preguntas'}</span>
-          <a class="boton ${n === 3 ? 'secundario' : ''} chico" href="#cap2/${id}">${n === 0 ? 'Escuchar' : n === 3 ? 'Volver a escuchar' : 'Seguir conversando'} a ${esc(v.nombre.split(' ')[0])}</a>
-        </div></li>`;
+        return `<li class="voz${n === 3 ? ' completa' : ''}">
+          <a class="voz-retrato" href="#cap2/${id}" tabindex="-1" aria-hidden="true"><img src="${v.retrato}" alt=""></a>
+          <div class="voz-cuerpo">
+            <h3>${esc(v.nombre)}</h3><p class="rol">${esc(v.rol)}</p><span class="perspectiva">${esc(v.perspectiva)}</span>
+            <span class="progreso-voz">${n === 3 ? '✓ Testimonio completo' : n + ' de 3 preguntas'}</span>
+            <a class="boton ${n === 3 ? 'secundario' : ''} chico" href="#cap2/${id}">${n === 0 ? 'Escuchar' : n === 3 ? 'Volver a escuchar' : 'Seguir conversando'} a ${esc(v.nombre.split(' ')[0])}</a>
+          </div>
+          ${n === 3 ? '<span class="sello" aria-hidden="true">Escuchado</span>' : ''}
+        </li>`;
       }).join('')}
     </ul>
     ${tableroHTML()}
     ${navSiguiente(['cap1', 'Capítulo 1'], ['cap3', 'Capítulo 3: Archivo de pistas'])}`;
   };
 
-  function tableroHTML(compacto) {
+  function tableroHTML() {
     return `<section class="tablero" aria-labelledby="t-tablero">
       <h2 id="t-tablero">Tablero de versiones</h2>
       <p class="ayuda">Cada respuesta que escuchás se clava acá. Leé en horizontal: ¿dónde coinciden las versiones? ¿Dónde se contradicen?</p>
       <div class="tablero-scroll"><table>
         <caption class="solo-lector">Comparación de lo que dice cada persona sobre cada tema</caption>
-        <thead><tr><td aria-hidden="true" style="background:none;border:none;box-shadow:none"></td>${ORDEN_VOCES.map(id => `<th scope="col">${esc(D.VOCES[id].nombre)}</th>`).join('')}</tr></thead>
+        <thead><tr><td aria-hidden="true" style="background:none;border:none;box-shadow:none"></td>${ORDEN_VOCES.map(id => `<th scope="col"><img class="tablero-foto" src="${D.VOCES[id].retrato}" alt="">${esc(D.VOCES[id].nombre)}</th>`).join('')}</tr></thead>
         <tbody>${D.PREGUNTAS.map(q => `<tr><th scope="row">${esc(q.tema)}</th>${ORDEN_VOCES.map(id => {
           const ok = (S.preguntas[id] || []).indexOf(q.id) > -1;
           return ok ? `<td>${esc(D.VOCES[id].tablero[q.id])}</td>` : `<td class="vacia">Todavía no le preguntaste.</td>`;
@@ -501,18 +511,20 @@
     const ult = ultimaRespuesta[id];
     const texto = ult ? v.respuestas[ult] : v.saludo;
     const preg = ult ? D.PREGUNTAS.find(q => q.id === ult).texto : null;
-    const globos = [];
-    if (preg) globos.push({ tipo: 'dialogo', texto: preg, x: 18, y: 18, cola: 'abajo-izq', max: 19, fs: 21 });
-    globos.push({ tipo: 'dialogo', texto, x: 382, y: 18, cola: 'abajo-der', max: 30, fs: 21 });
     const completa = vozCompleta(id);
+    const primerNombre = v.nombre.split(' ')[0];
     c.innerHTML = `
     <p><a href="#cap2">← Volver a las voces</a></p>
     <header class="cabecera"><div><p class="kicker">Capítulo 2 · Testimonio</p><h1>${esc(v.nombre)}</h1></div><span class="etiqueta ficcion">Personaje ficticio</span></header>
     <p><em>${esc(v.rol)}</em></p>
     <div class="testimonio">
-      <div>
-        ${figuraNarrativa({ fondo: v.fondo, figuras: [{ f: 'elena', x: 150, y: 590, s: .8 }, { f: id, x: 640, y: 590, s: .8, espejo: true }], globos, alt: `Elena conversa con ${v.nombre}.` })}
-      </div>
+      <figure class="vineta vineta-ilus escena-voz sin-giro">
+        <div class="vineta-marco">
+          <img src="${v.imagen}" alt="${esc(v.alt)}">
+          <div class="globo-html globo-voz"><span class="globo-quien">${esc(primerNombre)}</span>${esc(texto)}</div>
+          ${preg ? `<div class="globo-html globo-elena"><span class="globo-quien">Elena</span>${esc(preg)}</div>` : ''}
+        </div>
+      </figure>
       <div>
         <h2>Preguntale</h2>
         <div class="preguntas" role="group" aria-label="Preguntas para ${esc(v.nombre)}">
@@ -520,14 +532,14 @@
         </div>
         <h3>Lo que escuchaste</h3>
         <ol class="transcripcion" aria-live="polite">
-          ${hechas.length ? hechas.map(qid => `<li><span class="q">Elena: ${esc(D.PREGUNTAS.find(q => q.id === qid).texto)}</span>${esc(v.respuestas[qid])}</li>`).join('') : `<li><span class="q">${esc(v.nombre.split(' ')[0])} dice:</span>${esc(v.saludo)}</li>`}
+          ${hechas.length ? hechas.map(qid => `<li><span class="q">Elena: ${esc(D.PREGUNTAS.find(q => q.id === qid).texto)}</span>${esc(v.respuestas[qid])}</li>`).join('') : `<li><span class="q">${esc(primerNombre)} dice:</span>${esc(v.saludo)}</li>`}
         </ol>
       </div>
     </div>
     ${completa ? `<div class="para-pensar"><p><strong>Perspectiva:</strong> ${esc(v.perspectiva)}.</p><p><strong>Para pensar:</strong> ${esc(v.pensar)}</p>
       <p>Pistas registradas: ${v.pistas.map(p => etiqueta(D.PISTAS[p].tipo) + ' ' + esc(D.PISTAS[p].nombre)).join(' · ')}</p></div>` : ''}
     <h2 style="margin-top:2rem">Escuchar otra voz</h2>
-    <div class="otras-voces">${ORDEN_VOCES.filter(x => x !== id).map(x => `<a class="boton secundario chico" href="#cap2/${x}">${vozCompleta(x) ? '✓ ' : ''}${esc(D.VOCES[x].nombre)}</a>`).join('')}</div>
+    <ul class="otras-voces">${ORDEN_VOCES.filter(x => x !== id).map(x => `<li><a href="#cap2/${x}"><img src="${D.VOCES[x].retrato}" alt=""><span>${vozCompleta(x) ? '✓ ' : ''}${esc(D.VOCES[x].nombre)}</span></a></li>`).join('')}</ul>
     ${tableroHTML()}
     ${navSiguiente(['cap2', 'Todas las voces'], vocesCompletas().length >= 3 ? ['cap3', 'Capítulo 3: Archivo de pistas'] : null)}`;
     $$('[data-q]', c).forEach(b => b.addEventListener('click', () => {
@@ -558,17 +570,20 @@
     c.innerHTML = `
     <header class="cabecera"><div><p class="kicker">Capítulo 3</p><h1>Archivo de pistas</h1></div><span>${halladas.length} de ${TOTAL_PISTAS} pistas · ${clasificadas.length} clasificadas (${aciertos} coinciden con el archivo)</span></header>
     <p class="bajada">Esta es la bitácora de Elena… y la tuya. Cada hallazgo tiene un origen y una relación con otros.</p>
+    ${mesaHTML()}
+    <h2 class="titulo-seccion">Fichas de la bitácora</h2>
     <p class="instruccion"><strong>Actividad 1:</strong> clasificá cada pista como fuente histórica, elemento ficcional o interpretación, y comprobá. Si no coincide, leé la explicación: <strong>la clasificación del archivo no cambia</strong> por lo que elijas, porque una pista ficticia nunca se vuelve un documento real.<br><strong>Actividad 2:</strong> más abajo, compará dos testimonios y explicá sus diferencias.</p>
     ${halladas.length ? `<div class="filtros" role="group" aria-label="Filtrar pistas">
       ${[['todas', 'Todas'], ['pendientes', 'Por clasificar'], ['clasificadas', 'Clasificadas']].map(([k, t]) => `<button data-filtro="${k}" aria-pressed="${filtroArchivo === k}">${t}</button>`).join('')}
     </div>` : ''}
     <ul class="fichas">
-      ${halladas.length ? visibles.map(fichaHTML).join('') || '<li><p><em>No hay pistas en este filtro.</em></p></li>' : `<li class="ficha bloqueada"><h3>Tu archivo está vacío</h3><p>Empezá por el <a href="#cap1">Capítulo 1</a>: explorá la habitación de Elena.</p></li>`}
+      ${halladas.length ? visibles.map(fichaHTML).join('') || '<li><p><em>No hay pistas en este filtro.</em></p></li>' : `<li class="ficha bloqueada"><h3>Tu archivo está vacío</h3><p>Empezá por el <a href="#cap1">Capítulo 1</a>: explorá el escritorio de Elena.</p></li>`}
       ${faltan > 0 && filtroArchivo === 'todas' ? `<li class="ficha bloqueada" aria-label="Pistas por descubrir"><h3>${faltan} pista${faltan > 1 ? 's' : ''} por descubrir</h3><p>Algunas aparecen al explorar objetos; otras, al escuchar voces completas; las interpretaciones, al relacionar testimonios.</p></li>` : ''}
     </ul>
     ${comparadorHTML()}
     ${navSiguiente(['cap2', 'Capítulo 2'], ['cap4', 'Capítulo 4: La viñeta que falta'])}`;
     $$('[data-filtro]', c).forEach(b => b.addEventListener('click', () => { filtroArchivo = b.dataset.filtro; VISTAS.cap3(c); $(`[data-filtro="${filtroArchivo}"]`, c).focus(); }));
+    $$('[data-doc]', c).forEach(b => b.addEventListener('click', () => abrirDocumento(b.dataset.doc)));
     $$('form.clasificar', c).forEach(f => f.addEventListener('submit', e => {
       e.preventDefault();
       const id = f.dataset.pista; const val = (new FormData(f)).get('tipo');
@@ -589,6 +604,45 @@
     conectarComparador(c);
   };
 
+  function mesaHTML() {
+    const vistos = S.docsVistos || {};
+    return `<section class="mesa-seccion" aria-labelledby="t-mesa">
+      <h2 id="t-mesa">La mesa de investigación</h2>
+      <p>Sobre la mesa hay documentos que otras personas guardaron. Tocá cada uno para examinarlo de cerca y ampliarlo.</p>
+      ${avisoFiccion('El plano, la carta, el registro, los dibujos y sus sellos son <strong>recreaciones ficticias</strong> creadas para esta historia. No son documentos históricos auténticos, aunque mencionen fechas reales.')}
+      <div class="escena mesa">
+        ${vinetaImagen({ imagen: 'img/cap3/mesa-de-investigacion.webp', alt: 'Mesa de trabajo vista desde arriba: un plano de la ciudad, una carta con sello de lacre, un libro de registro, un boceto de una iglesia, un dibujo de un campamento, un atado de cartas, un tintero con pluma y una lupa.' }, 'sin-giro')}
+        ${D.DOCUMENTOS.map((d, i) => `<button class="punto ${vistos[d.id] ? 'visto' : ''}" data-doc="${d.id}" style="left:${d.x}%;top:${d.y}%" aria-label="Documento ${i + 1}: ${esc(d.titulo)}${vistos[d.id] ? ' (ya examinado)' : ''}"><span aria-hidden="true">🔍</span><span class="rotulo" aria-hidden="true">${esc(d.titulo)}</span></button>`).join('')}
+      </div>
+      <ul class="lista-objetos" aria-label="Documentos de la mesa">${D.DOCUMENTOS.map(d => `<li><button data-doc="${d.id}" class="${vistos[d.id] ? 'visto' : ''}">${vistos[d.id] ? '✓' : '🔍'} ${esc(d.titulo)}</button></li>`).join('')}</ul>
+    </section>`;
+  }
+  function abrirDocumento(id) {
+    const d = D.DOCUMENTOS.find(x => x.id === id);
+    S.docsVistos = S.docsVistos || {};
+    if (!S.docsVistos[id]) { S.docsVistos[id] = Date.now(); registrar('Examinó el documento: ' + d.titulo); guardar(); }
+    abrirModal(`<p class="kicker">Documento del archivo · <span class="etiqueta ficcion">Recreación ficticia</span></p>
+      <h2 id="modal-titulo">${esc(d.titulo)}</h2>
+      <div class="zoom" id="zoom" tabindex="0" aria-label="Documento. Activá «Acercar» para ampliarlo y recorrelo con las flechas o desplazando."><img src="${d.imagen}" alt="${esc(d.alt)}"></div>
+      <div class="acciones"><button class="boton secundario chico" id="zoom-btn" aria-pressed="false">Acercar</button><a class="boton secundario chico" href="${d.imagen}" target="_blank" rel="noopener">Abrir en tamaño completo ↗</a></div>
+      <p>${esc(d.texto)}</p>
+      <div class="para-pensar"><strong>Para pensar:</strong> ${esc(d.pregunta)}</div>
+      ${avisoFiccion('Este documento es una <strong>recreación ficticia</strong>: no es una fuente histórica. No se registra como pista porque no aporta datos verificables, pero podés usarlo para formular preguntas e hipótesis.')}
+      <div class="acciones"><button class="boton" id="cerrar-doc">Volver a la mesa</button></div>`, m => {
+      const z = $('#zoom', m), b = $('#zoom-btn', m), img = $('img', z);
+      const alternar = (ev) => {
+        const cerca = !z.classList.contains('acercado');
+        const r = z.getBoundingClientRect();
+        const fx = ev && ev.clientX ? (ev.clientX - r.left) / r.width : .5, fy = ev && ev.clientY ? (ev.clientY - r.top) / r.height : .5;
+        z.classList.toggle('acercado', cerca); b.setAttribute('aria-pressed', cerca ? 'true' : 'false'); b.textContent = cerca ? 'Alejar' : 'Acercar';
+        if (cerca) requestAnimationFrame(() => { z.scrollLeft = img.offsetWidth * fx - z.clientWidth / 2; z.scrollTop = img.offsetHeight * fy - z.clientHeight / 2; });
+      };
+      b.addEventListener('click', () => alternar());
+      img.addEventListener('click', alternar);
+      $('#cerrar-doc', m).addEventListener('click', cerrarModal);
+    });
+    $$(`[data-doc="${id}"]`).forEach(x => { x.classList.add('visto'); if (!x.classList.contains('punto')) x.textContent = '✓ ' + d.titulo; });
+  }
   function fichaHTML(id) {
     const p = D.PISTAS[id], el = S.clasif[id];
     const rel = p.rel.map(r => S.pistas[r] ? `<button data-ir="${r}">${esc(D.PISTAS[r].nombre)}</button>` : `<span class="oculta">una pista aún no encontrada</span>`).join(' ');
@@ -658,42 +712,105 @@
   }
 
   /* ======================= CAPÍTULO 4: EDITOR ======================= */
-  const ED_FONDOS = ['ruinas', 'cuarto', 'plaza', 'archivo', 'camino', 'noche'];
-  const ED_PERS = ['elena', 'rosario', 'aurelio', 'tomas', 'elvira', 'teodora', 'buscadores'];
   const TIPOS_GLOBO = { dialogo: 'Diálogo', pensamiento: 'Pensamiento', grito: 'Grito / exclamación', cartela: 'Cartela del narrador' };
   const COLAS = { 'abajo-izq': 'Abajo a la izquierda', 'abajo-der': 'Abajo a la derecha', 'arriba-izq': 'Arriba a la izquierda', 'arriba-der': 'Arriba a la derecha', ninguna: 'Sin cola' };
-  function editorNuevo() {
-    return { id: null, titulo: '', fondo: 'ruinas', items: [{ id: uid(), k: 'p', ref: 'elena', x: 320, y: 585, s: .95, espejo: false }], pistas: [], ficcion: '', fuentes: '', sel: null };
+  const CARPETA = { cuerpo: 'personajes', medio: 'personajes', gestos: 'gestos', objetos: 'objetos', recursos: 'recursos' };
+  const RECURSOS = {};
+  D.EDITOR.grupos.forEach(g => g.items.forEach(([id, nombre, nw, nh, alto]) => {
+    RECURSOS[id] = { id, nombre, grupo: g.id, src: `img/cap4/${CARPETA[g.id]}/${id}.webp`, h: alto, w: Math.round(alto * nw / nh) };
+  }));
+  const FONDOS_ED = {};
+  D.EDITOR.fondos.forEach(f => { FONDOS_ED[f.id] = Object.assign({ src: `img/cap4/fondos/${f.id}.webp` }, f); });
+  /* Viñetas guardadas con la versión anterior (dibujos en código) → recursos ilustrados */
+  const MIGRAR_PERS = { elena: 'elena-cuerpo', rosario: 'rosario-cuerpo', aurelio: 'aurelio-cuerpo', tomas: 'tomas-medio', elvira: 'elvira-cuerpo', teodora: 'teodora-cuerpo', buscadores: 'elena-cuerpo' };
+  const MIGRAR_FONDO = { cuarto: 'mesa-de-trabajo', plaza: 'patio', archivo: 'mesa-de-trabajo', camino: 'cruce-de-caminos', noche: 'iglesia-en-ruinas' };
+  function migrarVineta(v) {
+    if (!v) return v;
+    if (!FONDOS_ED[v.fondo]) v.fondo = MIGRAR_FONDO[v.fondo] || 'ruinas';
+    v.items = (v.items || []).map(it => {
+      if (it.k === 'p') {
+        const r = RECURSOS[MIGRAR_PERS[it.ref] || 'elena-cuerpo'];
+        return { id: it.id, k: 'r', ref: r.id, x: Math.round(it.x - r.w * it.s / 2), y: Math.round(Math.min(it.y, 600) - r.h * it.s), s: it.s, espejo: !!it.espejo };
+      }
+      if (it.k === 'r' && !RECURSOS[it.ref] && /^tomas/.test(it.ref)) it.ref = 'tomas-medio';
+      return it;
+    }).filter(it => it.k === 'g' || (it.k === 'r' && RECURSOS[it.ref]));
+    return v;
   }
-  function contenidoVineta(v, interactivo) {
-    let s = (A.FONDOS[v.fondo] || A.FONDOS.ruinas).dibujo();
+  function editorNuevo() {
+    return { id: null, titulo: '', fondo: 'ruinas', items: [{ id: uid(), k: 'r', ref: 'elena-cuerpo', x: 300, y: 160, s: 1, espejo: false }], pistas: [], ficcion: '', fuentes: '', sel: null };
+  }
+  function contenidoVineta(v, interactivo, mapa) {
+    const src = r => (mapa && mapa[r]) || r;
+    const f = FONDOS_ED[v.fondo] || FONDOS_ED.ruinas;
+    let s = `<image href="${src(f.src)}" xlink:href="${src(f.src)}" x="0" y="0" width="800" height="600" preserveAspectRatio="xMidYMid slice"/>`;
     v.items.forEach(it => {
-      const lab = it.k === 'p' ? 'Personaje: ' + A.PERSONAJES[it.ref].nombre : (TIPOS_GLOBO[it.tipo] || 'Globo') + ': ' + (it.texto || 'vacío');
-      const inner = it.k === 'p' ? `<g transform="scale(${it.espejo ? -it.s : it.s} ${it.s})">${A.figura(it.ref)}</g>` : A.globo(it).svg;
+      let inner, lab;
+      if (it.k === 'r') {
+        const r = RECURSOS[it.ref]; if (!r) return;
+        const w = Math.round(r.w * it.s), h = Math.round(r.h * it.s);
+        inner = `<image href="${src(r.src)}" xlink:href="${src(r.src)}" width="${w}" height="${h}" preserveAspectRatio="none"${it.espejo ? ` transform="translate(${w} 0) scale(-1 1)"` : ''}/>`;
+        lab = r.nombre;
+      } else {
+        inner = A.globo(it).svg;
+        lab = (TIPOS_GLOBO[it.tipo] || 'Globo') + ': ' + (it.texto || 'vacío');
+      }
       s += `<g class="item${interactivo && v.sel === it.id ? ' sel' : ''}" data-id="${it.id}" transform="translate(${Math.round(it.x)} ${Math.round(it.y)})"${interactivo ? ` tabindex="0" role="button" aria-label="${esc(lab)}. Flechas para mover, Suprimir para quitar."` : ''}>${inner}</g>`;
     });
-    s += `<rect width="800" height="600" filter="url(#f-grano)" opacity=".6" pointer-events="none"/>`;
     return s;
   }
   function describirVineta(v) {
-    const pers = v.items.filter(i => i.k === 'p').map(i => A.PERSONAJES[i.ref].nombre);
+    const els = v.items.filter(i => i.k === 'r' && RECURSOS[i.ref]).map(i => RECURSOS[i.ref].nombre);
     const gl = v.items.filter(i => i.k === 'g' && i.texto).map(i => `${TIPOS_GLOBO[i.tipo]}: «${i.texto}»`);
-    return `Viñeta «${v.titulo || 'sin título'}». Fondo: ${A.FONDOS[v.fondo].nombre}. Personajes: ${pers.join(', ') || 'ninguno'}. ${gl.join(' ')}`;
+    return `Viñeta «${v.titulo || 'sin título'}». Escenario: ${(FONDOS_ED[v.fondo] || FONDOS_ED.ruinas).nombre}. Elementos: ${els.join(', ') || 'ninguno'}. ${gl.join(' ')}`;
   }
-  function svgVineta(v, interactivo) {
-    return `<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" ${interactivo ? 'role="group" aria-label="Lienzo de la viñeta. Usá Tab para elegir un elemento."' : `role="img" aria-label="${esc(describirVineta(v))}"`}>${contenidoVineta(v, interactivo)}</svg>`;
+  const XMLNS = 'xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"';
+  function svgVineta(v, interactivo, mapa) {
+    return `<svg viewBox="0 0 800 600" ${XMLNS} ${interactivo ? 'role="group" aria-label="Lienzo de la viñeta. Usá Tab para elegir un elemento."' : `role="img" aria-label="${esc(describirVineta(v))}"`}>${contenidoVineta(v, interactivo, mapa)}</svg>`;
   }
-  function svgExportable(v) {
+  /* Para exportar, las ilustraciones se incrustan en la imagen (así no se pierden) */
+  function aDataURL(src, opaco) {
+    return new Promise((ok, mal) => {
+      const im = new Image();
+      im.onload = () => {
+        try {
+          const cv = document.createElement('canvas'); cv.width = im.naturalWidth; cv.height = im.naturalHeight;
+          cv.getContext('2d').drawImage(im, 0, 0);
+          ok(cv.toDataURL(opaco ? 'image/jpeg' : 'image/png', .9));
+        } catch (e) { mal(e); }
+      };
+      im.onerror = mal; im.src = src;
+    });
+  }
+  async function mapaEmbebido(lista) {
+    const mapa = {};
+    for (const v of lista) {
+      const rutas = [(FONDOS_ED[v.fondo] || FONDOS_ED.ruinas).src].concat(v.items.filter(i => i.k === 'r' && RECURSOS[i.ref]).map(i => RECURSOS[i.ref].src));
+      for (const r of rutas) if (!mapa[r]) mapa[r] = await aDataURL(r, r.indexOf('/fondos/') > -1);
+    }
+    return mapa;
+  }
+  function svgExportable(v, mapa) {
     const pie = A.lineas('Pistas: ' + (v.pistas.map(p => D.PISTAS[p] ? D.PISTAS[p].nombre : '').filter(Boolean).join(' · ') || '—'), 96).slice(0, 2);
     const alto = 600 + 96 + pie.length * 18;
-    return { alto, svg: `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="${alto}" viewBox="0 0 800 ${alto}">${A.defs()}
-      <rect width="800" height="${alto}" fill="#efe3c8"/>${contenidoVineta(v, false)}
+    return { alto, svg: `<svg ${XMLNS} width="800" height="${alto}" viewBox="0 0 800 ${alto}">${A.defs()}
+      <rect width="800" height="${alto}" fill="#efe3c8"/>${contenidoVineta(v, false, mapa)}
       <rect x="4" y="4" width="792" height="592" fill="none" stroke="#2a1c12" stroke-width="8"/>
       <text x="24" y="640" font-family="Georgia,serif" font-size="26" font-weight="700" fill="#2a1c12">${esc(v.titulo || 'Sin título')}</text>
       ${pie.map((l, i) => `<text x="24" y="${668 + i * 18}" font-family="Trebuchet MS,Verdana,sans-serif" font-size="14" fill="#4a3322">${esc(l)}</text>`).join('')}
       <text x="24" y="${alto - 14}" font-family="Georgia,serif" font-style="italic" font-size="13" fill="#8a6844">La página que faltaba · Escena creada por estudiantes · Contiene elementos ficcionales</text></svg>` };
   }
-  function descargarVinetaPNG(v) { const e = svgExportable(v); svgAPNG(e.svg, 800, e.alto, nombreArchivo(v.titulo) + '.png'); registrar('Descargó la viñeta como imagen: ' + (v.titulo || 'sin título')); }
+  async function descargarVinetaPNG(v) {
+    aviso('Preparando la imagen…');
+    try {
+      const mapa = await mapaEmbebido([v]);
+      const e = svgExportable(v, mapa);
+      svgAPNG(e.svg, 800, e.alto, nombreArchivo(v.titulo) + '.png');
+      registrar('Descargó la viñeta como imagen: ' + (v.titulo || 'sin título'));
+    } catch (err) {
+      aviso('No se pudo generar la imagen. Si abriste la aplicación como archivo, usá el sitio publicado o «Imprimir / PDF».');
+    }
+  }
   function htmlImpresionVineta(v) {
     return `<h1>${esc(v.titulo || 'Sin título')}</h1><p><em>La página que faltaba · La viñeta que falta</em></p>
       <div class="vineta-imp">${svgVineta(v, false)}</div>
@@ -704,34 +821,43 @@
   function validarVineta(v) {
     const e = [];
     if (!v.titulo.trim()) e.push('Escribí un título para la escena.');
-    if (!v.items.some(i => i.k === 'p')) e.push('Agregá al menos un personaje.');
+    if (!v.items.some(i => i.k === 'r' && RECURSOS[i.ref] && /cuerpo|medio|elena-/.test(i.ref))) e.push('Agregá al menos un personaje.');
     if (!v.items.some(i => i.k === 'g' && (i.texto || '').trim())) e.push('Agregá al menos un globo o cartela con texto.');
     if (!v.pistas.length) e.push('Elegí al menos una pista que fundamente la escena.');
     if (v.ficcion.trim().length < 15) e.push('Explicá qué parte de tu escena es ficción (mínimo 15 caracteres).');
     if (v.fuentes.trim().length < 15) e.push('Explicá qué parte se apoya en fuentes históricas, o por qué no hay ninguna (mínimo 15 caracteres).');
     return e;
   }
+  function posicionInicial(r, n) {
+    if (r.grupo === 'cuerpo') return { x: 90 + (n * 170) % 560, y: 600 - r.h - 8 };
+    if (r.grupo === 'medio') return { x: 60 + (n * 190) % 520, y: 600 - r.h };
+    if (r.grupo === 'gestos') return { x: 600, y: 24 };
+    if (r.grupo === 'objetos') return { x: 330 + (n * 40) % 200, y: 600 - r.h - 30 };
+    return { x: 380 + (n * 30) % 120, y: 70 };
+  }
 
   VISTAS.cap4 = function (c) {
     if (!S.editor) S.editor = editorNuevo();
-    const E = S.editor;
+    const E = migrarVineta(S.editor);
     const halladas = pistasHalladas();
     c.innerHTML = `
-    <header class="cabecera"><div><p class="kicker">Capítulo 4</p><h1>La viñeta que falta</h1></div><span>${S.vinetas.length} viñeta${S.vinetas.length === 1 ? '' : 's'} en tu galería</span></header>
-    <p class="bajada">La hoja dice: «…que alguien escriba la página que falta». Ahora te toca a vos. Imaginá una escena que nadie registró: la noche de la búsqueda, la caja llevada al norte, la abuela escribiendo la hoja… o lo que tus pistas te sugieran.</p>
-    <p class="instruccion">1) Elegí un <strong>fondo</strong>. 2) Agregá <strong>personajes</strong> y <strong>globos</strong>, y arrastralos (o movelos con las flechas). 3) Completá la <strong>fundamentación</strong>: qué pistas usaste, qué es ficción y qué se apoya en fuentes. 4) <strong>Guardá</strong>, previsualizá, descargá o imprimí.</p>
+    <header class="cabecera"><div><p class="kicker">Capítulo 4</p><h1>La viñeta que falta</h1></div><span id="cap4-cuenta">${S.vinetas.length} viñeta${S.vinetas.length === 1 ? '' : 's'} en tu galería</span></header>
+    ${vinetaImagen({ imagen: 'img/cap4/banner-dibujando.webp', alt: 'Una mano entinta con un lápiz las viñetas de una página de historieta: ruinas, cordillera y globos de diálogo vacíos.', cartela: 'La hoja dice: «…que alguien escriba la página que falta». Ahora te toca a vos: imaginá una escena que nadie registró y dibujala con los recursos de la historia.' }, 'banner banner-bajo')}
+    <p class="instruccion">1) Elegí un <strong>escenario</strong>. 2) Sumá <strong>personajes, gestos y objetos</strong>, y arrastralos (o movelos con las flechas). 3) Escribí <strong>globos y cartelas</strong>. 4) Completá la <strong>fundamentación</strong> y guardá, previsualizá, descargá o imprimí.</p>
     <div class="editor">
       <div class="lienzo-caja">
         <div class="lienzo" id="lienzo"></div>
         <p class="ayuda-lienzo">Arrastrá los elementos con el mouse o el dedo. Con teclado: <kbd>Tab</kbd> hasta el elemento, <kbd>flechas</kbd> para moverlo (<kbd>Mayús</kbd> = más rápido), <kbd>Supr</kbd> para quitarlo.</p>
       </div>
       <div class="panel">
-        <details open><summary>1 · Fondo</summary><div class="contenido"><div class="miniaturas" role="group" aria-label="Fondos">
-          ${ED_FONDOS.map(f => `<button data-fondo="${f}" aria-pressed="${E.fondo === f}" aria-label="Fondo: ${esc(A.FONDOS[f].nombre)}"><svg viewBox="0 0 800 600" aria-hidden="true">${A.FONDOS[f].dibujo()}</svg><span>${esc(A.FONDOS[f].nombre)}</span></button>`).join('')}
+        <details open><summary>1 · Escenario</summary><div class="contenido"><div class="miniaturas" role="group" aria-label="Escenarios">
+          ${D.EDITOR.fondos.map(f => `<button data-fondo="${f.id}" aria-pressed="${E.fondo === f.id}" aria-label="Escenario: ${esc(f.nombre)}"><img src="${FONDOS_ED[f.id].src}" alt=""><span>${esc(f.nombre)}</span></button>`).join('')}
         </div></div></details>
-        <details open><summary>2 · Personajes</summary><div class="contenido"><div class="personajes-boton">
-          ${ED_PERS.map(p => `<button data-agregar-pers="${p}" aria-label="Agregar a ${esc(A.PERSONAJES[p].nombre)}">${A.retrato(p).replace('role="img"', 'aria-hidden="true"')}${esc(A.PERSONAJES[p].nombre.replace(' (siluetas)', ''))}</button>`).join('')}
-        </div></div></details>
+        <details open><summary>2 · Personajes, gestos y objetos</summary><div class="contenido">
+          ${D.EDITOR.grupos.map((g, gi) => `<details class="grupo-recursos" ${gi === 0 ? 'open' : ''}><summary>${esc(g.titulo)}</summary>
+            <div class="recursos-botones ${g.id}">${g.items.map(([id]) => `<button data-agregar="${id}" aria-label="Agregar: ${esc(RECURSOS[id].nombre)}"><img src="${RECURSOS[id].src}" alt=""><span>${esc(RECURSOS[id].nombre)}</span></button>`).join('')}</div>
+          </details>`).join('')}
+        </div></details>
         <details open><summary>3 · Globos y textos</summary><div class="contenido">
           <div class="fila">
             <label class="campo">Tipo<select id="g-tipo">${Object.keys(TIPOS_GLOBO).map(k => `<option value="${k}">${TIPOS_GLOBO[k]}</option>`).join('')}</select></label>
@@ -783,7 +909,7 @@
     }
     function mover(id, dx, dy) {
       const it = item(id); if (!it) return;
-      it.x = Math.max(-150, Math.min(900, it.x + dx)); it.y = Math.max(-100, Math.min(760, it.y + dy));
+      it.x = Math.max(-300, Math.min(780, it.x + dx)); it.y = Math.max(-300, Math.min(580, it.y + dy));
       const n = $(`.item[data-id="${id}"]`, lienzo); if (n) n.setAttribute('transform', `translate(${Math.round(it.x)} ${Math.round(it.y)})`);
       persistir();
     }
@@ -791,33 +917,42 @@
       const i = E.items.findIndex(x => x.id === id); if (i < 0) return;
       E.items.splice(i, 1); E.sel = null; pintarLienzo(); pintarSel(); persistir(); aviso('Elemento quitado de la viñeta.');
     }
-    function alFrente(id) {
+    function capa(id, alFrente) {
       const i = E.items.findIndex(x => x.id === id); if (i < 0) return;
-      E.items.push(E.items.splice(i, 1)[0]); pintarLienzo(); persistir(); const n = $(`.item[data-id="${id}"]`, lienzo); if (n) n.focus();
+      const it = E.items.splice(i, 1)[0];
+      if (alFrente) E.items.push(it); else E.items.unshift(it);
+      pintarLienzo(); persistir(); const n = $(`.item[data-id="${id}"]`, lienzo); if (n) n.focus();
     }
     function pintarSel() {
       const p = $('#panel-sel', c); const it = E.sel && item(E.sel);
-      if (!it) { p.innerHTML = '<p class="seleccion-vacia">Tocá un personaje o un globo en la viñeta para editarlo.</p>'; return; }
+      if (!it) { p.innerHTML = '<p class="seleccion-vacia">Tocá un personaje, un objeto o un globo en la viñeta para editarlo.</p>'; return; }
       const flechas = `<div class="flechas" role="group" aria-label="Mover elemento">
         <span class="vacio"></span><button data-mv="0,-20" aria-label="Mover arriba">↑</button><span class="vacio"></span>
         <button data-mv="-20,0" aria-label="Mover a la izquierda">←</button><button data-mv="0,20" aria-label="Mover abajo">↓</button><button data-mv="20,0" aria-label="Mover a la derecha">→</button></div>`;
-      if (it.k === 'p') {
-        p.innerHTML = `<p><strong>${esc(A.PERSONAJES[it.ref].nombre)}</strong></p>
-          <label class="campo" for="s-tam">Tamaño</label><input type="range" id="s-tam" min="0.4" max="1.5" step="0.05" value="${it.s}">
-          <div class="fila" style="margin-top:.6rem">${flechas}<div class="acciones" style="margin:0"><button class="boton secundario chico" id="s-voltear">Voltear</button><button class="boton secundario chico" id="s-frente">Traer al frente</button><button class="boton secundario chico" id="s-quitar">Quitar</button></div></div>`;
-        $('#s-tam', p).addEventListener('input', e => { it.s = +e.target.value; pintarLienzo(); persistir(); });
+      const capas = `<button class="boton secundario chico" id="s-frente">Traer al frente</button><button class="boton secundario chico" id="s-fondo">Enviar atrás</button><button class="boton secundario chico" id="s-quitar">Quitar</button>`;
+      if (it.k === 'r') {
+        const r = RECURSOS[it.ref];
+        p.innerHTML = `<p class="sel-titulo"><img src="${r.src}" alt=""> <strong>${esc(r.nombre)}</strong></p>
+          <label class="campo" for="s-tam">Tamaño</label><input type="range" id="s-tam" min="0.3" max="2" step="0.05" value="${it.s}">
+          <div class="fila" style="margin-top:.6rem">${flechas}<div class="acciones" style="margin:0"><button class="boton secundario chico" id="s-voltear">Voltear</button>${capas}</div></div>`;
+        $('#s-tam', p).addEventListener('input', e => {
+          const nuevo = +e.target.value, w0 = r.w * it.s, h0 = r.h * it.s;
+          it.x += (w0 - r.w * nuevo) / 2; it.y += h0 - r.h * nuevo; it.s = nuevo; // crece desde la base
+          pintarLienzo(); persistir();
+        });
         $('#s-voltear', p).addEventListener('click', () => { it.espejo = !it.espejo; pintarLienzo(); persistir(); });
       } else {
         p.innerHTML = `<label class="campo" for="s-texto">Texto del globo</label><textarea id="s-texto" maxlength="140" style="min-height:4em">${esc(it.texto)}</textarea>
           <div class="fila"><label class="campo">Tipo<select id="s-tipo">${Object.keys(TIPOS_GLOBO).map(k => `<option value="${k}" ${it.tipo === k ? 'selected' : ''}>${TIPOS_GLOBO[k]}</option>`).join('')}</select></label>
           <label class="campo">Cola<select id="s-cola">${Object.keys(COLAS).map(k => `<option value="${k}" ${it.cola === k ? 'selected' : ''}>${COLAS[k]}</option>`).join('')}</select></label></div>
-          <div class="fila">${flechas}<div class="acciones" style="margin:0"><button class="boton secundario chico" id="s-frente">Traer al frente</button><button class="boton secundario chico" id="s-quitar">Quitar</button></div></div>`;
+          <div class="fila">${flechas}<div class="acciones" style="margin:0">${capas}</div></div>`;
         $('#s-texto', p).addEventListener('input', e => { it.texto = e.target.value; pintarLienzo(); persistir(); });
         $('#s-tipo', p).addEventListener('change', e => { it.tipo = e.target.value; pintarLienzo(); persistir(); });
         $('#s-cola', p).addEventListener('change', e => { it.cola = e.target.value; pintarLienzo(); persistir(); });
       }
       $$('[data-mv]', p).forEach(b => b.addEventListener('click', () => { const [dx, dy] = b.dataset.mv.split(',').map(Number); mover(it.id, dx, dy); }));
-      $('#s-frente', p).addEventListener('click', () => alFrente(it.id));
+      $('#s-frente', p).addEventListener('click', () => capa(it.id, true));
+      $('#s-fondo', p).addEventListener('click', () => capa(it.id, false));
       $('#s-quitar', p).addEventListener('click', () => quitar(it.id));
     }
 
@@ -836,7 +971,7 @@
     lienzo.addEventListener('pointermove', e => {
       if (!arrastre) return;
       const it = item(arrastre.id); const pt = puntoSVG(e);
-      it.x = Math.max(-150, Math.min(900, pt.x - arrastre.dx)); it.y = Math.max(-100, Math.min(760, pt.y - arrastre.dy));
+      it.x = Math.max(-300, Math.min(780, pt.x - arrastre.dx)); it.y = Math.max(-300, Math.min(580, pt.y - arrastre.dy));
       arrastre.g.setAttribute('transform', `translate(${Math.round(it.x)} ${Math.round(it.y)})`);
     });
     const soltar = () => { if (arrastre) { arrastre = null; persistir(); } };
@@ -850,17 +985,19 @@
       else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); quitar(g.dataset.id); }
     });
 
-    // Fondo
+    // Escenario
     $$('[data-fondo]', c).forEach(b => b.addEventListener('click', () => {
       E.fondo = b.dataset.fondo; $$('[data-fondo]', c).forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
       pintarLienzo(); persistir();
     }));
-    // Personajes
-    $$('[data-agregar-pers]', c).forEach(b => b.addEventListener('click', () => {
-      const n = E.items.filter(i => i.k === 'p').length;
-      const it = { id: uid(), k: 'p', ref: b.dataset.agregarPers, x: 160 + (n * 150) % 520, y: 585, s: .9, espejo: n % 2 === 1 };
+    // Personajes, gestos, objetos y recursos
+    $$('[data-agregar]', c).forEach(b => b.addEventListener('click', () => {
+      const r = RECURSOS[b.dataset.agregar];
+      const n = E.items.filter(i => i.k === 'r' && RECURSOS[i.ref] && RECURSOS[i.ref].grupo === r.grupo).length;
+      const pos = posicionInicial(r, n);
+      const it = { id: uid(), k: 'r', ref: r.id, x: pos.x, y: pos.y, s: 1, espejo: false };
       E.items.push(it); pintarLienzo(); seleccionar(it.id);
-      aviso(A.PERSONAJES[it.ref].nombre + ' se sumó a la viñeta. Arrastralo a su lugar.');
+      aviso(r.nombre + ' se sumó a la viñeta. Arrastralo a su lugar.');
     }));
     // Globos
     $('#g-agregar', c).addEventListener('click', () => {
@@ -894,13 +1031,13 @@
       registrar(`Guardó la viñeta «${v.titulo}»`);
       guardar(); aviso('Viñeta guardada en tu galería.');
       $('#v-guardar', c).textContent = 'Guardar cambios';
-      $('.cabecera span', c).textContent = `${S.vinetas.length} viñeta${S.vinetas.length === 1 ? '' : 's'} en tu galería`;
+      $('#cap4-cuenta', c).textContent = `${S.vinetas.length} viñeta${S.vinetas.length === 1 ? '' : 's'} en tu galería`;
       pintarGaleria(); actualizarBarra('cap4');
     });
     $('#v-previa', c).addEventListener('click', () => {
       const v = copiaLimpia(); const e = validarVineta(v);
       abrirModal(`<p class="kicker">Vista previa</p><h2 id="modal-titulo">${esc(v.titulo || 'Sin título')}</h2>
-        <div class="doc">${svgVineta(v, false)}</div>
+        <div class="doc vista-previa">${svgVineta(v, false)}</div>
         ${e.length ? `<div class="error-lista"><strong>Antes de guardar, completá:</strong><ul>${e.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '<p class="nota-contexto">✓ Tu viñeta está lista para guardar y exportar.</p>'}
         <h3>Pistas</h3><p>${v.pistas.map(p => etiqueta(D.PISTAS[p].tipo) + ' ' + esc(D.PISTAS[p].nombre)).join(' · ') || '—'}</p>
         <h3>Ficción</h3><p>${esc(v.ficcion) || '—'}</p><h3>Fuentes</h3><p>${esc(v.fuentes) || '—'}</p>
@@ -916,7 +1053,7 @@
     function pintarGaleria() {
       const g = $('#galeria', c);
       if (!S.vinetas.length) { g.innerHTML = '<p><em>Todavía no guardaste viñetas. Cuando guardes, aparecerán acá para editarlas, descargarlas o imprimirlas.</em></p>'; return; }
-      g.innerHTML = `<ul class="galeria">${S.vinetas.map(v => `<li><div class="mini">${svgVineta(v, false)}</div><div class="info"><h3>${esc(v.titulo)}</h3>
+      g.innerHTML = `<ul class="galeria">${S.vinetas.map(v => `<li><div class="mini">${svgVineta(migrarVineta(v), false)}</div><div class="info"><h3>${esc(v.titulo)}</h3>
         <div class="acciones" style="margin:0"><button class="boton secundario chico" data-gal-editar="${v.id}">Editar</button><button class="boton secundario chico" data-gal-png="${v.id}">PNG</button><button class="boton secundario chico" data-gal-imp="${v.id}">Imprimir</button><button class="boton secundario chico" data-gal-borrar="${v.id}">Eliminar</button></div></div></li>`).join('')}</ul>`;
       const buscar = id => S.vinetas.find(v => v.id === id);
       $$('[data-gal-editar]', g).forEach(b => b.addEventListener('click', () => { S.editor = JSON.parse(JSON.stringify(buscar(b.dataset.galEditar))); S.editor.sel = null; guardar(); VISTAS.cap4(c); $('#lienzo', c).scrollIntoView({ block: 'center' }); aviso('Editando «' + S.editor.titulo + '».'); }));
@@ -935,16 +1072,21 @@
 
   /* ======================= CAPÍTULO 5 ======================= */
   let verFinal = null;
+  const QUIEN_HABLA = { compartir: ['Elena lee', 'Rosario', 'Aurelio', 'Elena piensa'], investigar: ['Elvira', 'Aurelio', 'Elena piensa'], reconstruir: ['Tomás', 'Rosario', 'Aurelio'] };
+  function relatoFinal(k) {
+    const F = D.FINALES[k]; let n = 0;
+    return F.escenas.map(e => `<li><p>${esc(e.cartela)}</p>${(e.globos || []).map(g => `<p class="dialogo-final"><span class="globo-quien">${esc(QUIEN_HABLA[k][n++] || '')}</span>«${esc(g.texto)}»</p>`).join('')}</li>`).join('');
+  }
   VISTAS.cap5 = function (c) {
     const halladas = pistasHalladas();
     if (!S.decision) {
       c.innerHTML = `
       <header class="cabecera"><div><p class="kicker">Capítulo 5</p><h1>Decisiones y desenlaces</h1></div></header>
       <div class="dilema">
-        ${figuraNarrativa({ fondo: 'cuarto', figuras: [{ f: 'elena', x: 420, y: 590, s: 1.05 }], globos: [{ tipo: 'pensamiento', texto: '¿Qué hago con esta página?', x: 470, y: 60, cola: 'abajo-izq' }], cartela: 'Elena tiene la hoja, las pistas y muchas versiones. Ahora tiene que decidir.', alt: 'Elena sostiene la hoja en su habitación, pensativa.' })}
+        ${vinetaImagen({ imagen: 'img/cap5/dilema-cruce.webp', alt: 'Un cartel de madera con tres flechas sin texto en un cruce de caminos de tierra, entre álamos, con la cordillera al fondo.', cartela: 'Elena tiene la hoja, las pistas y muchas versiones. Tres caminos se abren delante de ella. ¿Qué hace con la página?' }, 'sin-giro')}
         <form id="form-decision" novalidate>
           <fieldset class="opciones-final"><legend>¿Qué debería hacer Elena con la página encontrada?</legend>
-            ${Object.keys(D.FINALES).map(k => `<label class="opcion-final"><input type="radio" name="opcion" value="${k}"><div><strong>${esc(D.FINALES[k].opcion)}</strong><span>${esc(D.FINALES[k].resumen)}</span></div></label>`).join('')}
+            ${Object.keys(D.FINALES).map(k => `<label class="opcion-final"><input type="radio" name="opcion" value="${k}"><img src="${D.FINALES[k].imagen}" alt=""><div><strong>${esc(D.FINALES[k].opcion)}</strong><span>${esc(D.FINALES[k].resumen)}</span></div></label>`).join('')}
           </fieldset>
           <p><small>Ninguna opción es «la correcta»: cada una tiene ganancias y costos.</small></p>
           <label class="campo" for="d-just">¿Por qué elegís esa opción? <small>Apoyate en pistas y testimonios que exploraste.</small></label>
@@ -973,7 +1115,7 @@
         S.decision = { opcion: op, justificacion: just, pistas, t: Date.now() };
         S.finalesVistos[op] = true; verFinal = op;
         registrar('Decidió: ' + D.FINALES[op].opcion);
-        guardar(); actualizarBarra('cap5'); VISTAS.cap5(c);
+        guardar(); actualizarBarra('cap5'); VISTAS.cap5(c); window.scrollTo(0, 0);
       });
       return;
     }
@@ -983,15 +1125,20 @@
     const esPropio = k === dec.opcion;
     c.innerHTML = `
     <header class="cabecera"><div><p class="kicker">Capítulo 5 · ${esPropio ? 'Tu desenlace' : 'Otro desenlace posible'}</p><h1>${esc(F.titulo)}</h1></div></header>
-    <div class="caja"><p><strong>Tu decisión:</strong> ${esc(D.FINALES[dec.opcion].opcion)}.</p><p><strong>Tu justificación:</strong> ${esc(dec.justificacion)}</p>
-      ${dec.pistas.length ? `<p><strong>Pistas:</strong> ${dec.pistas.map(p => esc(D.PISTAS[p].nombre)).join(' · ')}</p>` : ''}</div>
     ${!esPropio ? `<p class="instruccion">Estás viendo un desenlace que <strong>no</strong> elegiste. Compararlo con el tuyo también es parte de la investigación.</p>` : ''}
-    <div class="final"><div class="tira">${F.escenas.map(e => figuraNarrativa(e)).join('')}</div></div>
-    <div class="consecuencias"><h2>Consecuencias</h2><ul>${F.consecuencias.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
-      <p class="pregunta-final">${esc(F.pregunta)}</p></div>
+    <div class="final-escena">
+      ${vinetaImagen({ imagen: F.imagen, alt: F.alt, cartela: F.opcion }, 'sin-giro')}
+      <div>
+        <ol class="relato-final">${relatoFinal(k)}</ol>
+        <div class="consecuencias"><h2>Consecuencias</h2><ul>${F.consecuencias.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+          <p class="pregunta-final">${esc(F.pregunta)}</p></div>
+      </div>
+    </div>
+    <div class="caja decision-propia"><p><strong>Tu decisión:</strong> ${esc(D.FINALES[dec.opcion].opcion)}.</p><p><strong>Tu justificación:</strong> ${esc(dec.justificacion)}</p>
+      ${dec.pistas.length ? `<p><strong>Pistas:</strong> ${dec.pistas.map(p => esc(D.PISTAS[p].nombre)).join(' · ')}</p>` : ''}</div>
     <section style="margin-top:2rem" aria-labelledby="t-otros">
       <h2 id="t-otros">Explorá los otros desenlaces</h2>
-      <div class="acciones">${Object.keys(D.FINALES).map(x => `<button class="boton ${x === k ? '' : 'secundario'} chico" data-final="${x}" ${x === k ? 'aria-current="true"' : ''}>${x === dec.opcion ? '★ ' : ''}${esc(D.FINALES[x].titulo)}</button>`).join('')}</div>
+      <ul class="otros-finales">${Object.keys(D.FINALES).map(x => `<li><button data-final="${x}" ${x === k ? 'aria-current="true"' : ''}><img src="${D.FINALES[x].imagen}" alt=""><span>${x === dec.opcion ? '★ ' : ''}${esc(D.FINALES[x].titulo)}</span></button></li>`).join('')}</ul>
     </section>
     <section class="caja" style="margin-top:1.5rem" aria-labelledby="t-propio">
       <h2 id="t-propio">Escribí tu propio desenlace</h2>
@@ -1030,7 +1177,7 @@
       `Exploraste ${Object.keys(S.finalesVistos).length} de 3 desenlaces${S.bitacora.some(b => /Reconsider/.test(b.texto)) ? ' y reconsideraste tu decisión' : ''}.`
     ];
   }
-  function resumenHTML() {
+  function resumenHTML(mapa) {
     const n = (S.autoeval.nombre || '').trim();
     const halladas = pistasHalladas();
     return `<header><p class="kicker">La página que faltaba · Memorias de una historia olvidada</p><h1>Resumen de mi recorrido</h1>
@@ -1041,7 +1188,7 @@
       }).join('') || '<li>Sin pistas todavía.</li>'}</ul></section>
       <section><h3>Voces escuchadas</h3><p>${vocesCompletas().map(v => esc(D.VOCES[v].nombre)).join(', ') || 'Ninguna completa.'}</p></section>
       <section><h3>Comparaciones de testimonios</h3>${S.comparaciones.length ? S.comparaciones.map(k => `<p><strong>${esc(D.VOCES[k.a].nombre)} ↔ ${esc(D.VOCES[k.b].nombre)}:</strong> ${esc(k.texto)}</p>`).join('') : '<p>Sin comparaciones.</p>'}</section>
-      <section><h3>Mis viñetas</h3>${S.vinetas.length ? S.vinetas.map(v => `<div style="margin-bottom:1rem"><p><strong>${esc(v.titulo)}</strong></p><div class="mini-vineta vineta-imp">${svgVineta(v, false)}</div>
+      <section><h3>Mis viñetas</h3>${S.vinetas.length ? S.vinetas.map(v => `<div style="margin-bottom:1rem"><p><strong>${esc(v.titulo)}</strong></p><div class="mini-vineta vineta-imp">${svgVineta(migrarVineta(v), false, mapa)}</div>
         <p><em>Pistas:</em> ${v.pistas.map(p => esc(D.PISTAS[p].nombre)).join(' · ')}</p><p><em>Ficción:</em> ${esc(v.ficcion)}</p><p><em>Fuentes:</em> ${esc(v.fuentes)}</p></div>`).join('') : '<p>Sin viñetas guardadas.</p>'}</section>
       <section><h3>Mi decisión</h3>${S.decision ? `<p><strong>${esc(D.FINALES[S.decision.opcion].opcion)}</strong> → desenlace «${esc(D.FINALES[S.decision.opcion].titulo)}».</p><p>${esc(S.decision.justificacion)}</p>` : '<p>Sin decisión todavía.</p>'}
         ${S.desenlacePropio ? `<p><em>Mi desenlace alternativo:</em> ${esc(S.desenlacePropio)}</p>` : ''}</section>
@@ -1054,6 +1201,8 @@
     const ev = evidencias();
     c.innerHTML = `
     <header class="cabecera"><div><p class="kicker">Cierre</p><h1>Autoevaluación y resumen</h1></div></header>
+    <figure class="vineta vineta-ilus cierre-ilus sin-giro"><div class="vineta-marco"><img src="img/cierre/la-memoria-colectiva.webp" alt="Elena sostiene la hoja junto a Rosario, Aurelio, Tomás y Elvira, frente a las ruinas de la iglesia y la cordillera. Un cartel pregunta: ¿Quiénes construyen la memoria de una comunidad?"></div>
+      <figcaption class="cartela"><strong>¿Quiénes construyen la memoria de una comunidad?</strong> Documentos, testimonios, decisiones y miradas diversas se entrelazan para contar lo que sucedió. La memoria no es una sola historia: es una construcción colectiva que se enriquece con distintas voces.</figcaption></figure>
     <p class="bajada">Mirá tu recorrido con ojos de investigador o investigadora. Al lado de cada criterio tenés una evidencia de lo que hiciste: usala para ser honesto/a con vos.</p>
     <form id="form-auto">
       <label class="campo" for="a-nombre">Nombre o grupo <small>(opcional; solo aparece en el resumen impreso y no sale de este dispositivo)</small></label>
@@ -1086,10 +1235,12 @@
       $('#resumen', c).innerHTML = resumenHTML(); actualizarBarra('cierre'); aviso('Autoevaluación guardada. El resumen se actualizó.');
     });
     $('#r-imprimir', c).addEventListener('click', () => imprimir(resumenHTML()));
-    $('#r-html', c).addEventListener('click', () => {
+    $('#r-html', c).addEventListener('click', async () => {
+      let mapa = null;
+      try { mapa = await mapaEmbebido(S.vinetas.map(v => migrarVineta(JSON.parse(JSON.stringify(v))))); } catch (e) { mapa = null; }
       const doc = `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mi recorrido · La página que faltaba</title>
 <style>body{font-family:Georgia,serif;max-width:860px;margin:2rem auto;padding:0 1rem;color:#2a1c12;background:#f7efdc;line-height:1.55}h1{font-size:2rem}h3{border-bottom:1px solid #8a6844;margin-top:1.6rem}.kicker{font-family:Verdana,sans-serif;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#8f3d27}.mini-vineta{max-width:480px;border:3px solid #2a1c12}.mini-vineta svg{display:block;width:100%;height:auto}.linea-tiempo{font-size:.9rem}time{color:#8a6844;margin-right:.4em;font-family:Verdana,sans-serif;font-size:.8em}</style></head>
-<body><svg width="0" height="0" style="position:absolute" aria-hidden="true">${A.defs()}</svg>${resumenHTML()}</body></html>`;
+<body><svg width="0" height="0" style="position:absolute" aria-hidden="true">${A.defs()}</svg>${resumenHTML(mapa)}</body></html>`;
       descargarBlob(new Blob([doc], { type: 'text/html' }), 'mi-recorrido-la-pagina-que-faltaba.html');
       registrar('Descargó el resumen del recorrido'); guardar(); aviso('Resumen descargado.');
     });
@@ -1150,15 +1301,16 @@
     Object.keys(D.PISTAS).forEach((p, i) => { S.pistas[p] = t0 + i * 2000; });
     S.clasif = { hoja: 'ficcion', fundacion: 'historica', terremoto: 'historica', 'test-rosario': 'historica', 'i-firma': 'interpretacion', lenguas: 'historica' };
     S.comparaciones = [{ a: 'rosario', b: 'aurelio', t: t0 + 900000, texto: 'Rosario dice que la búsqueda fue la misma noche y Aurelio dice que nadie buscó nada, aunque admite que el cajón apareció abierto. Quizás Aurelio no quiere aceptar algo que no está en los registros, y Rosario mezcla lo que vio con lo que le contaron después.' }];
-    S.vinetas = [{ id: 'demo1', t: t0 + 1200000, titulo: 'La noche del farol', fondo: 'noche', pistas: ['terremoto', 'test-rosario', 'i-dos-noches'],
+    S.vinetas = [{ id: 'demo1', t: t0 + 1200000, titulo: 'La noche del farol', fondo: 'iglesia-en-ruinas', pistas: ['terremoto', 'test-rosario', 'i-dos-noches'],
       items: [
-        { id: 'd1', k: 'p', ref: 'buscadores', x: 330, y: 585, s: 1, espejo: false },
-        { id: 'd2', k: 'p', ref: 'rosario', x: 650, y: 590, s: .85, espejo: true },
-        { id: 'd3', k: 'g', tipo: 'cartela', texto: 'Mendoza, 20 de marzo de 1861. Minutos después del primer sacudón.', x: 14, y: 14, cola: 'ninguna' },
-        { id: 'd4', k: 'g', tipo: 'grito', texto: '¡El papel viejo, que no se pierda!', x: 120, y: 150, cola: 'ninguna' },
-        { id: 'd5', k: 'g', tipo: 'pensamiento', texto: '¿Quiénes son esos muchachos?', x: 470, y: 110, cola: 'abajo-der' }
+        { id: 'd1', k: 'r', ref: 'elena-cuerpo', x: 110, y: 162, s: 1, espejo: false },
+        { id: 'd2', k: 'r', ref: 'rosario-cuerpo', x: 560, y: 192, s: 1, espejo: true },
+        { id: 'd6', k: 'r', ref: 'farol', x: 360, y: 440, s: .9, espejo: false },
+        { id: 'd3', k: 'g', tipo: 'cartela', texto: 'Mendoza, 1874. Rosario recuerda la noche del 20 de marzo de 1861.', x: 14, y: 14, cola: 'ninguna' },
+        { id: 'd4', k: 'g', tipo: 'dialogo', texto: '¡Esa noche vi un farol entre los escombros!', x: 430, y: 70, cola: 'abajo-der' },
+        { id: 'd5', k: 'g', tipo: 'pensamiento', texto: '¿Quiénes buscaban ese papel?', x: 236, y: 132, cola: 'abajo-izq' }
       ],
-      ficcion: 'Los jóvenes del farol, Rosario y lo que dicen son inventados. La búsqueda del papel es un recuerdo de Rosario que nadie más confirma.',
+      ficcion: 'Elena, Rosario y lo que dicen son inventados. La búsqueda con el farol es un recuerdo de Rosario que nadie más confirma.',
       fuentes: 'La fecha del terremoto (20 de marzo de 1861, de noche) y la destrucción de la ciudad están documentadas.' }];
     S.editor = JSON.parse(JSON.stringify(S.vinetas[0])); S.editor.sel = null;
     S.decision = { opcion: 'reconstruir', t: t0 + 1800000, pistas: ['test-tomas', 'i-silencio', 'lenguas'], justificacion: 'Elijo reconstruir la historia con otras personas porque Tomás y Elvira muestran que muchas voces nunca se escribieron. Si Elena la publica sola, la hoja podría tomarse como prueba aunque no sabemos quién la escribió.' };
@@ -1171,5 +1323,13 @@
 
   /* ======================= INICIO ======================= */
   $('#defs-globales').innerHTML = A.defs();
+  (function migrarProgreso() {
+    const ov = S.objetosVistos;
+    if (ov.cajita && !ov.cartas) { ov.cartas = ov.cajita; } delete ov.cajita;
+    if (ov.almanaque && !ov.dibujo) { ov.dibujo = ov.almanaque; } delete ov.almanaque;
+    S.vinetas.forEach(migrarVineta); if (S.editor) migrarVineta(S.editor);
+    S.docsVistos = S.docsVistos || {};
+    guardar();
+  })();
   navegar();
 })();
