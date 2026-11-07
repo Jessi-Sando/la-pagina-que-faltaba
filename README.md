@@ -99,7 +99,7 @@ Probado en Chromium (escritorio y vista móvil 375 px) con el servidor local:
 | `img/cap4/gestos/`, `objetos/`, `recursos/` | 5 expresiones de Elena, 10 objetos, 4 recursos gráficos, sin fondo | Editor |
 | `img/cap5/` | Cruce de caminos y los 3 desenlaces | Capítulo 5 |
 | `img/cierre/` | La memoria colectiva | Cierre |
-| `img/general/` | Collage de capítulos, lámina de personajes, referencia oficial de Tomás | Cómo participar / referencia |
+| `img/general/` | Tira de capítulos y referencia oficial de Tomás | Cómo participar / referencia |
 
 **Referencia de personajes:** Tomás Videla es herrero (40–45 años, bigote, gorra marrón, chaleco y delantal). Su referencia oficial es `img/general/tomas-referencia.webp`.
 

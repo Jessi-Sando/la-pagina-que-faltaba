@@ -262,7 +262,7 @@
   VISTAS.como = function (c) {
     c.innerHTML = `
     <header class="cabecera"><div><p class="kicker">Guía para estudiantes</p><h1>Cómo participar</h1></div></header>
-    ${vinetaImagen({ imagen: 'img/general/collage-capitulos.webp', alt: 'Collage de cinco viñetas: ruinas de la ciudad, un grupo de personajes, documentos bajo una lupa, una mano dibujando una historieta y un cartel en un cruce de caminos.' }, 'banner banner-bajo')}
+    ${vinetaImagen({ imagen: 'img/general/collage-capitulos.webp', alt: 'Tira de cinco viñetas: ruinas de la ciudad, las cuatro voces entrevistadas, documentos bajo una lupa, una mano dibujando una historieta y un cartel en un cruce de caminos.' }, 'banner banner-bajo')}
     <p class="bajada">Sos investigador o investigadora de una historia que nadie terminó de contar. No hay una única respuesta correcta: lo importante es que puedas <strong>justificar</strong> lo que pensás con pistas.</p>
     <ol class="pasos">
       <li><strong>Explorá.</strong> En el Capítulo 1, tocá los objetos marcados con 🔍 en el escritorio de Elena. Cada objeto agrega pistas a tu bitácora.</li>
